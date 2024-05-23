@@ -2,59 +2,82 @@ from manim import *
 import pandas as pd
 import os
 
-
-class DataPoint(Dot):
-    def __init__(self, point: list | np.ndarray, x: float, y: float, color, **kwargs):
-        super().__init__(point=point, radius=0.15, color=color, **kwargs)
-        self.x = x
-        self.y = y
+#################
+### Functions ###
+#################
 
 
-def make_axes():
+def get_salaries_df(job):
+    cwd = os.getcwd()
+    df = pd.read_csv(cwd + "/data/{}.csv".format(job), index_col=0)
+    return df
+
+
+def make_axes(df):
+    max_y = df.loc[:, "Median_USD"].max()
+
     ax = Axes(
-        x_range=[0, 100, 10],
-        y_range=[-20, 200, 10],
-        x_axis_config={
+        x_range=[0, 140e3, 10e3],
+        y_range=[0, max_y, 10e3],
+        axis_config={
             "include_tip": True,
-            "include_numbers": True,
-        },
-        y_axis_config={
-            "include_tip": False,
-            "include_numbers": True,
+            "include_numbers": False,
         },
     )
     return ax
 
 
+###############
+### Classes ###
+###############
+
+
+class DataPoint(Dot):
+    def __init__(self, point: list | np.ndarray, x: float, y: float, color, **kwargs):
+        super().__init__(point=point, radius=0.1, color=color, fill_opacity=0.8, **kwargs)
+        self.x = x
+        self.y = y
+
+
+#############
+### Scene ###
+#############
+
+
 class SalariesScatterPlotAnimatedScene(Scene):
     def construct(self):
         # Download data and put in DataFrame
-        data_url = "https://raw.githubusercontent.com/thomasnield/machine-learning-demo-data/master/regression/linear_normal.csv"
-
-        df = pd.read_csv(data_url)
+        df = get_salaries_df(job="nurse")
 
         # Animate the creation of Axes
-        ax = make_axes()
+        ax = make_axes(df)
         self.play(Write(ax))
 
         self.wait()  # wait for 1 second
 
         # Animate the creation of dots
-        dots = [Dot(ax.c2p(x, y), color=BLUE) for x, y in df.values]
+        dots = []
+        colour_map = {
+            "Asia": PURE_RED,
+            "Americas": PINK,
+            "Africa": YELLOW,
+            "Europe": PURE_GREEN,
+            "Oceania": PURE_BLUE,
+        }
+        for i in range(df.shape[0]):
+            x, y = df.loc[i, ["GDP_per_capita_USD", "Median_USD"]].values
+            colour = colour_map[df.loc[i, ["Region"]].values[0]]
+            dots.append(DataPoint(point=ax.c2p(x, y), x=x, y=y, color=colour))
+        """ dots = [
+            DataPoint(point=ax.c2p(x, y), x=x, y=y, color=BLUE)
+            for x, y in df.loc[:, ["GDP_per_capita_USD", "Median_USD"]].values
+        ] """
         self.play(LaggedStart(*[Write(dot) for dot in dots], lag_ratio=0.05))
 
         self.wait()  # wait for 1 second
 
-class LogScalingExample(Scene):
-    def construct(self):
-        ax = Axes(
-            x_range=[0, 10, 1],
-            y_range=[-2, 6, 1],
-            tips=False,
-            axis_config={"include_numbers": True},
-            y_axis_config={"scaling": LogBase(custom_labels=True)},
-        )
 
-        # x_min must be > 0 because log is undefined at 0.
-        graph = ax.plot(lambda x: x ** 2, x_range=[0.001, 10], use_smoothing=False)
-        self.add(ax, graph)
+if __name__ == "__main__":
+    """df = get_salaries_df(job="nurse")
+    print(df)"""
+    pass
