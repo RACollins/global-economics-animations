@@ -160,4 +160,5 @@ cython_debug/
 #.idea/
 
 ### Ignore videos and images
+## Can't get it to work
 media/
