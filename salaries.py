@@ -14,7 +14,7 @@ colour_map = {
             "Oceania": PURE_BLUE,
         }
 
-jobs = ["all", "bricklayer", "doctor", "nurse"]
+jobs = ["all_jobs", "bricklayer", "doctor", "nurse"]
 
 #################
 ### Functions ###
@@ -41,7 +41,6 @@ def convert_k_cols(df: pd.DataFrame, cols_to_convert: str|list) -> pd.DataFrame:
 
 
 def make_axes(df: pd.DataFrame, pay_col: str):
-    max_y = df.loc[:, pay_col].max()
     ax = Axes(
         x_range=[3, 5.2, 1],
         y_range=[3, 6.1, 1],
@@ -99,13 +98,13 @@ class SalariesScatterPlotAnimatedScene(Scene):
         ### Download data and put in DataFrame
         df = get_salaries_df(job=job)
         df = add_radius_col(df, lowest_radius=0.05, highest_radius=0.85)
-        pay_col = "Mean_USD" if job == "all" else "Median_USD"
+        pay_col = "Mean_USD" if job == "all_jobs" else "Median_USD"
         ax = make_axes(df, pay_col)
         ### Add axis labels
         x_label = ax.get_x_axis_label(Text("GDP per Capita (USD)", font_size=26))
         y_label = ax.get_y_axis_label(Text("Average Salary (USD)", font_size=26))
         ### Add title
-        title = Text(r"{}".format(job.capitalize()), font_size=30)
+        title = Text(r"{}".format(" ".join([s.capitalize() for s in job.split("_")])), font_size=30)
         title.to_edge(UP)
 
         if animate_axes:
