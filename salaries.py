@@ -40,7 +40,7 @@ def convert_k_cols(df: pd.DataFrame, cols_to_convert: str|list) -> pd.DataFrame:
     return df
 
 
-def make_axes(df: pd.DataFrame, pay_col: str):
+def make_axes():
     ax = Axes(
         x_range=[3, 5.2, 1],
         y_range=[3, 6.1, 1],
@@ -99,7 +99,7 @@ class SalariesScatterPlotAnimatedScene(Scene):
         df = get_salaries_df(job=job)
         df = add_radius_col(df, lowest_radius=0.05, highest_radius=0.85)
         pay_col = "Mean_USD" if job == "all_jobs" else "Median_USD"
-        ax = make_axes(df, pay_col)
+        ax = make_axes()
         ### Add axis labels
         x_label = ax.get_x_axis_label(Text("GDP per Capita (USD)", font_size=26))
         y_label = ax.get_y_axis_label(Text("Average Salary (USD)", font_size=26))
