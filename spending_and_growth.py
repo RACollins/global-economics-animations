@@ -60,8 +60,36 @@ def make_axes():
 
 class SpendingVsGrowthAnimatedScene(Scene):
     def construct(self):
-        self.generate_timeseries_plot(animate_axes=True)
+       #self.generate_timeseries_plot(animate_axes=True)
+        self.generate_line_plot(animate_axes=True)
         self.wait(2)
+    
+    def generate_line_plot(self, animate_axes: bool):
+        ### Download data and put in DataFrame
+        df = get_spending_df()
+        filtered_df = df.loc[df["Country"] == "United Kingdom", :].set_index("Year", drop=False)
+        ax = make_axes()
+        ### Add axis labels
+        x_label = ax.get_x_axis_label(Text("Year", font_size=26))
+        y_label = ax.get_y_axis_label(Text("Government Expenditure (%)", font_size=26))
+
+        line_graph = ax.plot_line_graph(
+            x_values = filtered_df["Year"],
+            y_values = filtered_df["Government Expenditure (IMF & Wiki)"],
+            line_color=PURE_GREEN,
+            add_vertex_dots=False,
+        )
+
+        if animate_axes:
+            ### Animate the creation of Axes
+            self.play(Write(ax))
+            self.play(Write(x_label))
+            self.play(Write(y_label))
+            self.play(Write(line_graph, rate_func=rate_functions.ease_in_expo))
+            #self.play(Write(title))
+            self.wait()  # wait for 1 second
+
+        return ax
 
     def generate_timeseries_plot(self, animate_axes: bool):
         ### Download data and put in DataFrame
