@@ -37,12 +37,17 @@ def add_radius_col(
 
 def make_axes():
     ax = Axes(
-        x_range=[1850, 2020, 20],
+        x_range=[1850, 2021, 10],
         y_range=[0, 100, 10],
         axis_config={
-            "color": WHITE,   # <- not needed if backgroud colour is default BLACK
+            "color": WHITE,  # <- not needed if backgroud colour is default BLACK
             "include_tip": False,
-            "include_numbers": True
+            "include_numbers": True,
+            "numbers_to_exclude": list(range(1850, 2020, 20)),
+            "decimal_number_config": {
+                "num_decimal_places": 0,
+                "group_with_commas": False,  # <- This removes the comma delimitation
+            }
         },
     )
     return ax
@@ -60,8 +65,8 @@ def make_axes():
 
 class SpendingVsGrowthAnimatedScene(Scene):
     def construct(self):
-       #self.generate_timeseries_plot(animate_axes=True)
-        self.generate_line_plot(animate_axes=True)
+        self.generate_timeseries_plot(animate_axes=True)
+        #self.generate_line_plot(animate_axes=True)
         self.wait(2)
     
     def generate_line_plot(self, animate_axes: bool):
