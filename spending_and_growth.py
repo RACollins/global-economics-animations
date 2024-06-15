@@ -38,7 +38,9 @@ def add_radius_col(
     return df
 
 
-def make_axes(x_range: list, y_range: list, numbers_to_exclude: list):
+def make_axes(
+    x_range: list, y_range: list, x_numbers_to_include: list, y_numbers_to_include: list
+):
     ax = Axes(
         x_range=x_range,
         y_range=y_range,
@@ -46,12 +48,13 @@ def make_axes(x_range: list, y_range: list, numbers_to_exclude: list):
             "color": WHITE,  # <- not needed if backgroud colour is default BLACK
             "include_tip": False,
             "include_numbers": True,
-            "numbers_to_exclude": numbers_to_exclude,
             "decimal_number_config": {
                 "num_decimal_places": 0,
                 "group_with_commas": False,  # <- This removes the comma delimitation
             },
         },
+        x_axis_config={"numbers_to_include": x_numbers_to_include},
+        y_axis_config={"numbers_to_include": y_numbers_to_include},
     )
     return ax
 
@@ -77,23 +80,29 @@ class SpendingVsGrowthAnimatedScene(Scene):
             col_to_plot="Government Expenditure (IMF & Wiki)",
             animate_axes=True,
         )"""
-        self.generate_line_plot(
+        plot_vgroup = self.generate_line_plot(
             country="United Kingdom",
             x_range=[1850, 2021, 10],
-            y_range=[4000, 40000, 1000],
-            numbers_to_exclude=[i for i in range(4000, 40000, 1) if i in [4e3, 1e4, 2e4, 3e4, 4e4]],
+            y_range=[4000, 40001, 1000],
+            x_numbers_to_include=list(range(1860, 2021, 20)),
+            y_numbers_to_include=list(range(5000, 40001, 5000)),
             y_axis_label="GDP per capita",
             col_to_plot="GDP per capita (OWiD)",
             animate_axes=True,
         )
         self.wait(2)
+        """ self.play(ApplyMethod(plot_vgroup.scale, 0.25),
+                  ApplyMethod(plot_vgroup.move_to, UP * 3 + LEFT * 5)) """
+        shift_scale = plot_vgroup.animate  
+        self.play(shift_scale.shift([-4.25, 2.5, 0]), shift_scale.scale(0.33))  
 
     def generate_line_plot(
         self,
         country: str,
         x_range: list,
         y_range: list,
-        numbers_to_exclude: list,
+        x_numbers_to_include: list,
+        y_numbers_to_include: list,
         animate_axes: bool,
         y_axis_label: str,
         col_to_plot: str,
@@ -104,7 +113,8 @@ class SpendingVsGrowthAnimatedScene(Scene):
         ax = make_axes(
             x_range=x_range,
             y_range=y_range,
-            numbers_to_exclude=numbers_to_exclude,
+            x_numbers_to_include=x_numbers_to_include,
+            y_numbers_to_include=y_numbers_to_include,
         )
         ### Add axis labels
         x_label = ax.get_x_axis_label(Text("Year", font_size=26))
@@ -125,8 +135,14 @@ class SpendingVsGrowthAnimatedScene(Scene):
             self.play(Write(line_graph, rate_func=rate_functions.ease_in_expo))
             # self.play(Write(title))
             self.wait()  # wait for 1 second
+        else:
+            ### Just generate without animation
+            self.add(ax)
+            self.add(x_label)
+            self.add(y_label)
+            self.add(line_graph)
 
-        return ax
+        return VGroup(ax, line_graph, x_label, y_label)
 
     def generate_timeseries_plot(
         self,
@@ -169,8 +185,8 @@ class SpendingVsGrowthAnimatedScene(Scene):
 
 
 if __name__ == "__main__":
-    """df = get_spending_df()
-    filtered_df = df.loc[df["Country"] == "United Kingdom", :].reset_index(drop=True)
-    filtered_df = df.loc[df["Country"] == "United Kingdom", :].reset_index(drop=True).sort_values(by=["GDP per capita (OWiD)"])
-    print(filtered_df)"""
+    """ df = get_spending_df()
+    #filtered_df = df.loc[df["Country"] == "United Kingdom", :].reset_index(drop=True)
+    filtered_df = df.reset_index(drop=True).sort_values(by=["GDP per capita (OWiD)"])
+    print(filtered_df) """
     pass
