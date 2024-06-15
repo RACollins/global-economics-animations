@@ -80,7 +80,7 @@ class SpendingVsGrowthAnimatedScene(Scene):
             col_to_plot="Government Expenditure (IMF & Wiki)",
             animate_axes=True,
         )"""
-        plot_vgroup = self.generate_line_plot(
+        gdp_plot_vgroup = self.generate_line_plot(
             country="United Kingdom",
             x_range=[1850, 2021, 10],
             y_range=[4000, 40001, 1000],
@@ -90,11 +90,22 @@ class SpendingVsGrowthAnimatedScene(Scene):
             col_to_plot="GDP per capita (OWiD)",
             animate_axes=True,
         )
+        gdp_shift_scale = gdp_plot_vgroup.animate
+        self.play(gdp_shift_scale.shift([-4.25, 2.5, 0]), gdp_shift_scale.scale(0.33))
+
+        spend_plot_vgroup = self.generate_line_plot(
+            country="United Kingdom",
+            x_range=[1850, 2021, 10],
+            y_range=[0, 101, 10],
+            x_numbers_to_include=list(range(1860, 2021, 20)),
+            y_numbers_to_include=list(range(0, 101, 20)),
+            y_axis_label="Government Expenditure (%)",
+            col_to_plot="Government Expenditure (IMF & Wiki)",
+            animate_axes=True,
+        )
         self.wait(2)
-        """ self.play(ApplyMethod(plot_vgroup.scale, 0.25),
-                  ApplyMethod(plot_vgroup.move_to, UP * 3 + LEFT * 5)) """
-        shift_scale = plot_vgroup.animate  
-        self.play(shift_scale.shift([-4.25, 2.5, 0]), shift_scale.scale(0.33))  
+        spend_shift_scale = spend_plot_vgroup.animate
+        self.play(spend_shift_scale.shift([-4.25, -2.5, 0]), spend_shift_scale.scale(0.33))
 
     def generate_line_plot(
         self,
