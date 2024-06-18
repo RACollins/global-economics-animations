@@ -71,56 +71,66 @@ def make_axes(
 
 class SpendingVsGrowthAnimatedScene(Scene):
     def construct(self):
-        """self.generate_timeseries_plot(
-            country="United Kingdom",
-            x_range=[1850, 2021, 10],
-            y_range=[0, 100, 10],
-            numbers_to_exclude=list(range(1850, 2020, 20)),
-            y_axis_label="Government Expenditure (%)",
-            col_to_plot="Government Expenditure (IMF & Wiki)",
-            animate_axes=True,
-        )"""
-        gdp_plot_vgroup = self.generate_line_plot(
-            country="United Kingdom",
+
+        ### Download data and put in DataFrame
+        df = get_spending_df()
+        filtered_df = df.loc[df["Country"] == "United Kingdom", :].set_index("Year", drop=False)
+
+        ### Generate axes and labels for gdp and spend
+        gdp_ax, gdp_x_label, gdp_y_label = self.generate_axes(
             x_range=[1850, 2021, 10],
             y_range=[4000, 40001, 1000],
             x_numbers_to_include=list(range(1860, 2021, 20)),
             y_numbers_to_include=list(range(5000, 40001, 5000)),
             y_axis_label="GDP per capita",
-            col_to_plot="GDP per capita (OWiD)",
-            animate_axes=True,
+            animate_axes=False,
         )
-        gdp_shift_scale = gdp_plot_vgroup.animate
-        self.play(gdp_shift_scale.shift([-4.25, 2.5, 0]), gdp_shift_scale.scale(0.33))
-
-        spend_plot_vgroup = self.generate_line_plot(
-            country="United Kingdom",
+        spend_ax, spend_x_label, spend_y_label = self.generate_axes(
             x_range=[1850, 2021, 10],
             y_range=[0, 101, 10],
             x_numbers_to_include=list(range(1860, 2021, 20)),
             y_numbers_to_include=list(range(0, 101, 20)),
             y_axis_label="Government Expenditure (%)",
-            col_to_plot="Government Expenditure (IMF & Wiki)",
-            animate_axes=True,
+            animate_axes=False,
         )
-        self.wait(2)
-        spend_shift_scale = spend_plot_vgroup.animate
-        self.play(spend_shift_scale.shift([-4.25, -2.5, 0]), spend_shift_scale.scale(0.33))
 
-    def generate_line_plot(
+        ### Group to stack
+        gdp_ax_vgroup = VGroup(gdp_ax, gdp_x_label, gdp_y_label)
+        spend_ax_vgroup = VGroup(spend_ax, spend_x_label, spend_y_label)
+
+        ### Stack the axes vertically and fit to screen
+        stacked_plots_vgroup = VGroup(gdp_ax_vgroup, spend_ax_vgroup)
+        stacked_plots_vgroup.arrange(UP, buff=1).scale_to_fit_height(6)
+        
+        ### Generate line plots and draw
+        gdp_line_graph = gdp_ax.plot_line_graph(
+            x_values=filtered_df["Year"],
+            y_values=filtered_df["GDP per capita (OWiD)"],
+            line_color=PURE_GREEN,
+            add_vertex_dots=False,
+        )
+        spend_line_graph = spend_ax.plot_line_graph(
+            x_values=filtered_df["Year"],
+            y_values=filtered_df["Government Expenditure (IMF & Wiki)"],
+            line_color=PURE_GREEN,
+            add_vertex_dots=False,
+        )
+        self.play(Write(gdp_line_graph, rate_func=rate_functions.ease_in_expo))
+        self.wait(2)
+        self.play(Write(spend_line_graph, rate_func=rate_functions.ease_in_expo))
+        self.wait(2)
+
+
+
+    def generate_axes(
         self,
-        country: str,
         x_range: list,
         y_range: list,
         x_numbers_to_include: list,
         y_numbers_to_include: list,
         animate_axes: bool,
         y_axis_label: str,
-        col_to_plot: str,
     ):
-        ### Download data and put in DataFrame
-        df = get_spending_df()
-        filtered_df = df.loc[df["Country"] == country, :].set_index("Year", drop=False)
         ax = make_axes(
             x_range=x_range,
             y_range=y_range,
@@ -131,19 +141,12 @@ class SpendingVsGrowthAnimatedScene(Scene):
         x_label = ax.get_x_axis_label(Text("Year", font_size=26))
         y_label = ax.get_y_axis_label(Text(y_axis_label, font_size=26))
 
-        line_graph = ax.plot_line_graph(
-            x_values=filtered_df["Year"],
-            y_values=filtered_df[col_to_plot],
-            line_color=PURE_GREEN,
-            add_vertex_dots=False,
-        )
-
         if animate_axes:
             ### Animate the creation of Axes
             self.play(Write(ax))
             self.play(Write(x_label))
             self.play(Write(y_label))
-            self.play(Write(line_graph, rate_func=rate_functions.ease_in_expo))
+            # self.play(Write(line_graph, rate_func=rate_functions.ease_in_expo))
             # self.play(Write(title))
             self.wait()  # wait for 1 second
         else:
@@ -151,48 +154,9 @@ class SpendingVsGrowthAnimatedScene(Scene):
             self.add(ax)
             self.add(x_label)
             self.add(y_label)
-            self.add(line_graph)
+            # self.add(line_graph)
 
-        return VGroup(ax, line_graph, x_label, y_label)
-
-    def generate_timeseries_plot(
-        self,
-        country: str,
-        x_range: list,
-        y_range: list,
-        numbers_to_exclude: list,
-        animate_axes: bool,
-        y_axis_label: str,
-        col_to_plot: str,
-    ):
-        ### Download data and put in DataFrame
-        df = get_spending_df()
-        filtered_df = df.loc[df["Country"] == country, :].set_index("Year", drop=False)
-        ax = make_axes(
-            x_range=x_range, y_range=y_range, numbers_to_exclude=numbers_to_exclude
-        )
-        ### Add axis labels
-        x_label = ax.get_x_axis_label(Text("Year", font_size=26))
-        y_label = ax.get_y_axis_label(Text(y_axis_label, font_size=26))
-        ### Add title
-        # title = Text(r"{}".format(" ".join([s.capitalize() for s in job.split("_")])), font_size=30)
-        # title.to_edge(UP)
-        ts = ax.plot(
-            lambda x: filtered_df.loc[x, col_to_plot],
-            x_range=[1850, 2020, 1],
-            color=PURE_GREEN,
-        )
-
-        if animate_axes:
-            ### Animate the creation of Axes
-            self.play(Write(ax))
-            self.play(Write(x_label))
-            self.play(Write(y_label))
-            self.play(Write(ts, rate_func=rate_functions.ease_in_expo))
-            # self.play(Write(title))
-            self.wait()  # wait for 1 second
-
-        return ax
+        return ax, x_label, y_label
 
 
 if __name__ == "__main__":
