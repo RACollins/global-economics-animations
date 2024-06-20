@@ -26,6 +26,8 @@ def get_spending_df() -> pd.DataFrame:
         .drop(columns=["Unnamed: 0"])
         .sort_values(["Country", "Year"])
     )
+    ### Convert to K$s
+    df["GDP per capita (OWiD)"] = df["GDP per capita (OWiD)"].div(1000)
     return df
 
 
@@ -72,24 +74,26 @@ def make_axes(
 class SpendingVsGrowthAnimatedScene(Scene):
     def construct(self):
 
-        ### Download data and put in DataFrame
+        ### Load data and put in DataFrame
         df = get_spending_df()
         filtered_df = df.loc[df["Country"] == "United Kingdom", :].set_index("Year", drop=False)
 
         ### Generate axes and labels for gdp and spend
         gdp_ax, gdp_x_label, gdp_y_label = self.generate_axes(
             x_range=[1850, 2021, 10],
-            y_range=[4000, 40001, 1000],
+            y_range=[4, 40, 1],
             x_numbers_to_include=list(range(1860, 2021, 20)),
-            y_numbers_to_include=list(range(5000, 40001, 5000)),
-            y_axis_label="GDP per capita",
+            y_numbers_to_include=list(range(5, 40, 5)),
+            x_axis_label="Year",
+            y_axis_label="GDP per capita (kUSD)",
             animate_axes=False,
         )
         spend_ax, spend_x_label, spend_y_label = self.generate_axes(
             x_range=[1850, 2021, 10],
             y_range=[0, 101, 10],
             x_numbers_to_include=list(range(1860, 2021, 20)),
-            y_numbers_to_include=list(range(0, 101, 20)),
+            y_numbers_to_include=list(range(0, 100, 20)),
+            x_axis_label="Year",
             y_axis_label="Government Expenditure (%)",
             animate_axes=False,
         )
@@ -99,7 +103,7 @@ class SpendingVsGrowthAnimatedScene(Scene):
         spend_ax_vgroup = VGroup(spend_ax, spend_x_label, spend_y_label)
 
         ### Stack the axes vertically and fit to screen
-        stacked_plots_vgroup = VGroup(gdp_ax_vgroup, spend_ax_vgroup)
+        stacked_plots_vgroup = VGroup(spend_ax_vgroup, gdp_ax_vgroup)
         stacked_plots_vgroup.arrange(UP, buff=1).scale_to_fit_height(6)
         
         ### Generate line plots and draw
@@ -115,11 +119,67 @@ class SpendingVsGrowthAnimatedScene(Scene):
             line_color=PURE_GREEN,
             add_vertex_dots=False,
         )
-        self.play(Write(gdp_line_graph, rate_func=rate_functions.ease_in_expo))
-        self.wait(2)
-        self.play(Write(spend_line_graph, rate_func=rate_functions.ease_in_expo))
-        self.wait(2)
 
+        ### Draw plots
+        self.play(
+            LaggedStart(
+                Write(spend_line_graph, rate_func=rate_functions.ease_in_quad),
+                Write(gdp_line_graph, rate_func=rate_functions.ease_in_quad),
+                lag_ratio=0.25,
+                run_time=6.5,
+            )
+        )
+        self.wait()
+
+        ### Move plots to left
+        stacked_plots_vgroup += gdp_line_graph
+        stacked_plots_vgroup += spend_line_graph
+        self.play(stacked_plots_vgroup.animate.shift(LEFT*4.33))
+
+        """ ### Draw composite axes to right
+        comp_ax, comp_x_label, comp_y_label = self.generate_axes(
+            x_range=[0, 81, 10],
+            y_range=[-81, 81, 10],
+            x_numbers_to_include=list(range(0, 81, 20)),
+            y_numbers_to_include=list(range(-80, 81, 20)),
+            x_axis_label="Average Government Expenditure (%)",
+            y_axis_label="Increase in GDP per capita (%)",
+            animate_axes=True,
+        ) """
+
+        ### Declare ValueTrackers and start it at lower values
+        lower_vt = ValueTracker(1850)
+        upper_vt = ValueTracker(1855)
+
+        ### Create the line that connects the both graphs
+        lower_projecting_line = always_redraw(
+            lambda: DashedLine(
+                color=YELLOW,
+                end=gdp_ax.c2p(lower_vt.get_value(), 40),
+                start=spend_ax.c2p(lower_vt.get_value(), 0),
+            )
+        )
+        upper_projecting_line = always_redraw(
+            lambda: DashedLine(
+                color=YELLOW,
+                end=gdp_ax.c2p(upper_vt.get_value(), 40),
+                start=spend_ax.c2p(upper_vt.get_value(), 0),
+            )
+        )
+
+        ### Write the projected lines to the scene
+        self.play(
+            LaggedStart(
+                Write(lower_projecting_line),
+                Write(upper_projecting_line),
+                lag_ratio=0.25,
+            )
+        )
+        self.wait()
+
+        ### Animate the value trackers incrementally
+        for i in range(2020-1855):
+            self.play(lower_vt.animate.set_value(1850+i), upper_vt.animate.set_value(1855+i), run_time=0.1)
 
 
     def generate_axes(
@@ -129,6 +189,7 @@ class SpendingVsGrowthAnimatedScene(Scene):
         x_numbers_to_include: list,
         y_numbers_to_include: list,
         animate_axes: bool,
+        x_axis_label: str,
         y_axis_label: str,
     ):
         ax = make_axes(
@@ -138,7 +199,7 @@ class SpendingVsGrowthAnimatedScene(Scene):
             y_numbers_to_include=y_numbers_to_include,
         )
         ### Add axis labels
-        x_label = ax.get_x_axis_label(Text("Year", font_size=26))
+        x_label = ax.get_x_axis_label(Text(x_axis_label, font_size=26))
         y_label = ax.get_y_axis_label(Text(y_axis_label, font_size=26))
 
         if animate_axes:
@@ -146,7 +207,6 @@ class SpendingVsGrowthAnimatedScene(Scene):
             self.play(Write(ax))
             self.play(Write(x_label))
             self.play(Write(y_label))
-            # self.play(Write(line_graph, rate_func=rate_functions.ease_in_expo))
             # self.play(Write(title))
             self.wait()  # wait for 1 second
         else:
