@@ -176,7 +176,7 @@ class SpendingVsGrowthAnimatedScene(Scene):
 
         ### Animate the value trackers incrementally
         for i in range(2020-1855):
-            self.play(lower_vt.animate.set_value(1850+i), upper_vt.animate.set_value(1855+i), run_time=0.1)
+            self.play(lower_vt.animate.set_value(1850+i), upper_vt.animate.set_value(1855+i), run_time=0.25)
 
 
     def generate_axes(
