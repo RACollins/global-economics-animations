@@ -169,12 +169,9 @@ class SpendingVsGrowthAnimatedScene(Scene):
 
         ### Write the projected lines to the scene
         self.play(
-            LaggedStart(
-                Write(lower_projecting_line),
-                Write(upper_projecting_line),
-                lag_ratio=0.25,
+            Write(lower_projecting_line),
+            Write(upper_projecting_line)
             )
-        )
         self.wait()
 
         ### Animate the value trackers incrementally
