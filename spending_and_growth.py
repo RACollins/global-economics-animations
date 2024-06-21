@@ -22,7 +22,7 @@ colour_map = {
 def get_spending_df() -> pd.DataFrame:
     cwd = os.getcwd()
     df = (
-        pd.read_csv(cwd + "/data/spending_vs_gdp_per_capita.csv")
+        pd.read_csv(cwd + "/data/spending_and_gdp_per_capita.csv")
         .drop(columns=["Unnamed: 0"])
         .sort_values(["Country", "Year"])
     )
@@ -194,12 +194,16 @@ class SpendingVsGrowthAnimatedScene(Scene):
         self.wait()
 
         ### Draw point corresponding to demo calculation
-        demo_dot = Dot(comp_ax.coords_to_point(31.08201, 22.97089), color=GREEN, radius=0.05)
-        demo_lines = comp_ax.get_lines_to_point(comp_ax.c2p(31.08201, 22.97089))
-        self.play(
-            Write(demo_dot),
-            Write(demo_lines)
-        )
+        demo_point = comp_ax.coords_to_point(31.08201, 22.97089)
+        demo_dot = Dot(demo_point, color=GREEN, radius=0.05)
+
+        demo_v_line = comp_ax.get_vertical_line(demo_point, line_config={"dashed_ratio": 0.5})
+        demo_h_line = comp_ax.get_horizontal_line(demo_point, line_config={"dashed_ratio": 0.5})
+        #demo_lines = comp_ax.get_lines_to_point(comp_ax.c2p(31.08201, 22.97089))
+        self.play(Write(demo_dot))
+        self.play(Write(demo_v_line))
+        self.wait(2)
+        self.play(Write(demo_h_line))
 
         ### Animate the value trackers incrementally
         """ for i in range(2020-1855):
