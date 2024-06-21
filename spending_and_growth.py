@@ -41,11 +41,18 @@ def add_radius_col(
 
 
 def make_axes(
-    x_range: list, y_range: list, x_numbers_to_include: list, y_numbers_to_include: list
+    x_range: list,
+    y_range: list,
+    x_numbers_to_include: list,
+    y_numbers_to_include: list,
+    x_length: int,
+    y_length: int,
 ):
     ax = Axes(
         x_range=x_range,
         y_range=y_range,
+        x_length=x_length,
+        y_length=y_length,
         axis_config={
             "color": WHITE,  # <- not needed if backgroud colour is default BLACK
             "include_tip": False,
@@ -72,6 +79,7 @@ def make_axes(
 
 
 class SpendingVsGrowthAnimatedScene(Scene):
+
     def construct(self):
 
         ### Load data and put in DataFrame
@@ -84,18 +92,24 @@ class SpendingVsGrowthAnimatedScene(Scene):
             y_range=[4, 40, 1],
             x_numbers_to_include=list(range(1860, 2021, 20)),
             y_numbers_to_include=list(range(5, 40, 5)),
+            animate_axes=False,
             x_axis_label="Year",
             y_axis_label="GDP per capita (kUSD)",
-            animate_axes=False,
+            font_size=26, 
+            x_length=12,
+            y_length=6,
         )
         spend_ax, spend_x_label, spend_y_label = self.generate_axes(
             x_range=[1850, 2021, 10],
             y_range=[0, 101, 10],
             x_numbers_to_include=list(range(1860, 2021, 20)),
             y_numbers_to_include=list(range(0, 100, 20)),
+            animate_axes=False,
             x_axis_label="Year",
             y_axis_label="Government Expenditure (%)",
-            animate_axes=False,
+            font_size=26, 
+            x_length=12,
+            y_length=6,
         )
 
         ### Group to stack
@@ -136,20 +150,25 @@ class SpendingVsGrowthAnimatedScene(Scene):
         stacked_plots_vgroup += spend_line_graph
         self.play(stacked_plots_vgroup.animate.shift(LEFT*4.33))
 
-        """ ### Draw composite axes to right
+        ### Draw composite axes to right
         comp_ax, comp_x_label, comp_y_label = self.generate_axes(
             x_range=[0, 81, 10],
             y_range=[-81, 81, 10],
             x_numbers_to_include=list(range(0, 81, 20)),
             y_numbers_to_include=list(range(-80, 81, 20)),
+            animate_axes=True,
             x_axis_label="Average Government Expenditure (%)",
             y_axis_label="Increase in GDP per capita (%)",
-            animate_axes=True,
-        ) """
+            font_size=14, 
+            x_length=14,
+            y_length=12,
+            position=2.0,
+            scale=0.5,
+        )
 
-        ### Declare ValueTrackers and start it at lower values
-        lower_vt = ValueTracker(1850)
-        upper_vt = ValueTracker(1855)
+        ### Declare ValueTrackers and start it at 1936
+        lower_vt = ValueTracker(1936)
+        upper_vt = ValueTracker(1941)
 
         ### Create the line that connects the both graphs
         lower_projecting_line = always_redraw(
@@ -174,9 +193,17 @@ class SpendingVsGrowthAnimatedScene(Scene):
             )
         self.wait()
 
+        ### Draw point corresponding to demo calculation
+        demo_dot = Dot(comp_ax.coords_to_point(31.08201, 22.97089), color=GREEN, radius=0.05)
+        demo_lines = comp_ax.get_lines_to_point(comp_ax.c2p(31.08201, 22.97089))
+        self.play(
+            Write(demo_dot),
+            Write(demo_lines)
+        )
+
         ### Animate the value trackers incrementally
-        for i in range(2020-1855):
-            self.play(lower_vt.animate.set_value(1850+i), upper_vt.animate.set_value(1855+i), run_time=0.25)
+        """ for i in range(2020-1855):
+            self.play(lower_vt.animate.increment_value(1), upper_vt.animate.increment_value(1), run_time=0.05) """
 
 
     def generate_axes(
@@ -188,16 +215,29 @@ class SpendingVsGrowthAnimatedScene(Scene):
         animate_axes: bool,
         x_axis_label: str,
         y_axis_label: str,
+        font_size: int,
+        x_length: int,
+        y_length: int,
+        position: float = None,
+        scale: float = None,
     ):
         ax = make_axes(
             x_range=x_range,
             y_range=y_range,
             x_numbers_to_include=x_numbers_to_include,
             y_numbers_to_include=y_numbers_to_include,
+            x_length=x_length,
+            y_length=y_length,
         )
+
+        if position:
+            ax = ax.move_to(RIGHT*position)
+        if scale:
+            ax = ax.scale(scale)
+            
         ### Add axis labels
-        x_label = ax.get_x_axis_label(Text(x_axis_label, font_size=26))
-        y_label = ax.get_y_axis_label(Text(y_axis_label, font_size=26))
+        x_label = ax.get_x_axis_label(Text(x_axis_label, font_size=font_size))
+        y_label = ax.get_y_axis_label(Text(y_axis_label, font_size=font_size))
 
         if animate_axes:
             ### Animate the creation of Axes
