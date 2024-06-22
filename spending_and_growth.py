@@ -6,6 +6,8 @@ import os
 ### Definitions ###
 ###################
 
+
+cwd = os.getcwd()
 colour_map = {
     "Asia": PURE_RED,
     "Americas": PINK,
@@ -19,8 +21,7 @@ colour_map = {
 #################
 
 
-def get_spending_df() -> pd.DataFrame:
-    cwd = os.getcwd()
+def get_spend_gdp_df() -> pd.DataFrame:
     df = (
         pd.read_csv(cwd + "/data/spending_and_gdp_per_capita.csv")
         .drop(columns=["Unnamed: 0"])
@@ -28,6 +29,14 @@ def get_spending_df() -> pd.DataFrame:
     )
     ### Convert to K$s
     df["GDP per capita (OWiD)"] = df["GDP per capita (OWiD)"].div(1000)
+    return df
+
+
+def get_avg_spend_change_gdp_df() -> pd.DataFrame:
+    df = (
+        pd.read_csv(cwd + "/data/average_spend_vs_change_in_gdp.csv")
+        .drop(columns=["Unnamed: 0"])
+    )
     return df
 
 
@@ -82,9 +91,13 @@ class SpendingVsGrowthAnimatedScene(Scene):
 
     def construct(self):
 
-        ### Load data and put in DataFrame
-        df = get_spending_df()
-        filtered_df = df.loc[df["Country"] == "United Kingdom", :].set_index("Year", drop=False)
+        ### Load data for line graphs and put in DataFrame
+        line_graphs_df = get_spend_gdp_df()
+        uk_line_graphs_df = line_graphs_df.loc[line_graphs_df["Country"] == "United Kingdom", :].set_index("Year", drop=False)
+
+        ### Load data for scatter plot
+        scatter_df = get_avg_spend_change_gdp_df()
+        uk_scatter_df = scatter_df.loc[scatter_df["Country"] == "United Kingdom", :]
 
         ### Generate axes and labels for gdp and spend
         gdp_ax, gdp_x_label, gdp_y_label = self.generate_axes(
@@ -122,14 +135,14 @@ class SpendingVsGrowthAnimatedScene(Scene):
         
         ### Generate line plots and draw
         gdp_line_graph = gdp_ax.plot_line_graph(
-            x_values=filtered_df["Year"],
-            y_values=filtered_df["GDP per capita (OWiD)"],
+            x_values=uk_line_graphs_df["Year"],
+            y_values=uk_line_graphs_df["GDP per capita (OWiD)"],
             line_color=PURE_GREEN,
             add_vertex_dots=False,
         )
         spend_line_graph = spend_ax.plot_line_graph(
-            x_values=filtered_df["Year"],
-            y_values=filtered_df["Government Expenditure (IMF & Wiki)"],
+            x_values=uk_line_graphs_df["Year"],
+            y_values=uk_line_graphs_df["Government Expenditure (IMF & Wiki)"],
             line_color=PURE_GREEN,
             add_vertex_dots=False,
         )
@@ -145,7 +158,7 @@ class SpendingVsGrowthAnimatedScene(Scene):
         )
         self.wait()
 
-        ### Move plots to left
+        ### Add line plots to stacked vgroups and move to left
         stacked_plots_vgroup += gdp_line_graph
         stacked_plots_vgroup += spend_line_graph
         self.play(stacked_plots_vgroup.animate.shift(LEFT*4.33))
@@ -167,8 +180,10 @@ class SpendingVsGrowthAnimatedScene(Scene):
         )
 
         ### Declare ValueTrackers and start it at 1936
-        lower_vt = ValueTracker(1936)
-        upper_vt = ValueTracker(1941)
+        start_year = 1850
+        end_year = 1855
+        lower_vt = ValueTracker(start_year)
+        upper_vt = ValueTracker(end_year)
 
         ### Create the line that connects the both graphs
         lower_projecting_line = always_redraw(
@@ -194,21 +209,43 @@ class SpendingVsGrowthAnimatedScene(Scene):
         self.wait()
 
         ### Draw point corresponding to demo calculation
-        demo_point = comp_ax.coords_to_point(31.08201, 22.97089)
-        demo_dot = Dot(demo_point, color=GREEN, radius=0.05)
+        demo_dot = always_redraw(
+            lambda: Dot(
+                comp_ax.coords_to_point(
+                    *self.years_to_coords(
+                        uk_scatter_df,
+                        round(lower_vt.get_value()),
+                        round(upper_vt.get_value()),
+                    )
+                ),
+                color=PURE_GREEN,
+                radius=0.06,
+                fill_opacity=0.85,
+            )
+        )
 
-        demo_v_line = comp_ax.get_vertical_line(demo_point, line_config={"dashed_ratio": 0.5})
-        demo_h_line = comp_ax.get_horizontal_line(demo_point, line_config={"dashed_ratio": 0.5})
-        #demo_lines = comp_ax.get_lines_to_point(comp_ax.c2p(31.08201, 22.97089))
+        #demo_v_line = comp_ax.get_vertical_line(demo_point, line_config={"dashed_ratio": 0.5})
+        #demo_h_line = comp_ax.get_horizontal_line(demo_point, line_config={"dashed_ratio": 0.5})
         self.play(Write(demo_dot))
-        self.play(Write(demo_v_line))
-        self.wait(2)
-        self.play(Write(demo_h_line))
+        #self.play(Write(demo_v_line))
+        #self.wait(2)
+        #self.play(Write(demo_h_line))
 
         ### Animate the value trackers incrementally
-        """ for i in range(2020-1855):
-            self.play(lower_vt.animate.increment_value(1), upper_vt.animate.increment_value(1), run_time=0.05) """
+        for i in range(2019-1855):
+            self.play(lower_vt.animate.increment_value(1), upper_vt.animate.increment_value(1), run_time=0.05)
 
+    def years_to_coords(
+            self,
+            df: pd.DataFrame,
+            start_year: int,
+            end_year: int
+    ) -> list[float, float]:
+        coords = df.loc[
+            (df["start_year"] == start_year) & (df["end_year"] == end_year),
+            ["Average Government Expenditure as % of GDP", "Percentage change in GDP per capita USD"]
+        ].values[0]
+        return coords
 
     def generate_axes(
         self,
@@ -224,7 +261,7 @@ class SpendingVsGrowthAnimatedScene(Scene):
         y_length: int,
         position: float = None,
         scale: float = None,
-    ):
+    ) -> tuple:
         ax = make_axes(
             x_range=x_range,
             y_range=y_range,
@@ -261,8 +298,7 @@ class SpendingVsGrowthAnimatedScene(Scene):
 
 
 if __name__ == "__main__":
-    """ df = get_spending_df()
-    #filtered_df = df.loc[df["Country"] == "United Kingdom", :].reset_index(drop=True)
-    filtered_df = df.reset_index(drop=True).sort_values(by=["GDP per capita (OWiD)"])
+    """ df = get_avg_spend_change_gdp_df()
+    filtered_df = df.loc[df["Country"] == "United Kingdom", :].reset_index(drop=True)
     print(filtered_df) """
     pass
