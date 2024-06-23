@@ -180,10 +180,10 @@ class SpendingVsGrowthAnimatedScene(Scene):
         )
 
         ### Declare ValueTrackers and start it at 1936
-        start_year = 1850
-        end_year = 1855
-        lower_vt = ValueTracker(start_year)
-        upper_vt = ValueTracker(end_year)
+        initial_start_year = 1936
+        initial_end_year = 1941
+        lower_vt = ValueTracker(initial_start_year)
+        upper_vt = ValueTracker(initial_end_year)
 
         ### Create the line that connects the both graphs
         lower_projecting_line = always_redraw(
@@ -200,15 +200,7 @@ class SpendingVsGrowthAnimatedScene(Scene):
                 start=spend_ax.c2p(upper_vt.get_value(), 0),
             )
         )
-
-        ### Write the projected lines to the scene
-        self.play(
-            Write(lower_projecting_line),
-            Write(upper_projecting_line)
-            )
-        self.wait()
-
-        ### Draw point corresponding to demo calculation
+        ### Define point corresponding to demo calculation
         demo_dot = always_redraw(
             lambda: Dot(
                 comp_ax.coords_to_point(
@@ -219,21 +211,50 @@ class SpendingVsGrowthAnimatedScene(Scene):
                     )
                 ),
                 color=PURE_GREEN,
-                radius=0.06,
+                radius=0.05,
                 fill_opacity=0.85,
             )
         )
 
+        ### Write the projected lines and demo point to the scene
+        self.play(
+            Write(lower_projecting_line, run_time=1.0),
+            Write(upper_projecting_line, run_time=1.0),
+            Write(demo_dot, run_time=1.0),
+            )
+        self.wait()
+
         #demo_v_line = comp_ax.get_vertical_line(demo_point, line_config={"dashed_ratio": 0.5})
         #demo_h_line = comp_ax.get_horizontal_line(demo_point, line_config={"dashed_ratio": 0.5})
-        self.play(Write(demo_dot))
         #self.play(Write(demo_v_line))
         #self.wait(2)
         #self.play(Write(demo_h_line))
 
+        ### Two further demo points by changing value trackers
+        self.play(lower_vt.animate.set_value(1979), upper_vt.animate.set_value(1984), run_time=2.5)
+        self.wait(1)
+        self.play(lower_vt.animate.set_value(1916), upper_vt.animate.set_value(1921), run_time=3.5)
+        self.wait(1)
+        self.play(lower_vt.animate.set_value(1850), upper_vt.animate.set_value(1855), run_time=2.5)
+
+
         ### Animate the value trackers incrementally
         for i in range(2019-1855):
             self.play(lower_vt.animate.increment_value(1), upper_vt.animate.increment_value(1), run_time=0.05)
+            self.add(
+                Dot(
+                    comp_ax.coords_to_point(
+                        *self.years_to_coords(
+                            uk_scatter_df,
+                            round(lower_vt.get_value()),
+                            round(upper_vt.get_value()),
+                        )
+                    ),
+                    color=PURE_GREEN,
+                    radius=0.05,
+                    fill_opacity=0.5,
+                )
+            )
 
     def years_to_coords(
             self,
