@@ -86,6 +86,49 @@ def make_axes(
 ### Scene ###
 #############
 
+q_0 = 3000
+class Test(Scene):
+    def construct(self):
+        y_min, y_max = ValueTracker(0), ValueTracker(6000)
+        y_tick_step = ValueTracker(2000)
+        ax = always_redraw(lambda: Axes(
+            x_range=[0, 60, 15],
+            y_range=[y_min.get_value(), y_max.get_value(), y_tick_step.get_value()],
+            tips=False,
+            axis_config={"include_numbers": True}
+        ))
+
+        #base_flow_line = ax.plot(lambda t: q_0*t/60, color="blue")
+        x_values = list(range(0, 61, 15))
+        base_flow_line = ax.plot_line_graph(
+            x_values=x_values,
+            y_values=[q_0*x/60 for x in x_values],
+            line_color=BLUE,
+            add_vertex_dots=False,
+        )
+
+        self.add(ax)
+        self.play(Create(base_flow_line))
+        self.wait(3)
+
+        #base_flow_line_xfrm = always_redraw(lambda: ax.plot(lambda t: 0, color="blue"))
+        #base_flow_line_xfrm = ax.plot(lambda t: t*0, color="blue")
+        base_flow_line_xfrm = ax.plot_line_graph(
+            x_values=x_values,
+            y_values=[0 for x in x_values],
+            line_color=BLUE,
+            add_vertex_dots=False,
+        )
+        self.play(Transform(base_flow_line, base_flow_line_xfrm))
+        
+        v_group = VGroup(ax, base_flow_line_xfrm)
+        self.wait(2)
+
+        self.play(y_min.animate.set_value(-300),
+                  y_max.animate.set_value(300),
+                  y_tick_step.animate.set_value(100))
+
+        self.wait(5)
 
 class SpendingVsGrowthAnimatedScene(Scene):
 
@@ -94,10 +137,12 @@ class SpendingVsGrowthAnimatedScene(Scene):
         ### Load data for line graphs and put in DataFrame
         line_graphs_df = get_spend_gdp_df()
         uk_line_graphs_df = line_graphs_df.loc[line_graphs_df["Country"] == "United Kingdom", :].set_index("Year", drop=False)
+        de_line_graphs_df = line_graphs_df.loc[line_graphs_df["Country"] == "Germany", :].set_index("Year", drop=False)
 
         ### Load data for scatter plot
         scatter_df = get_avg_spend_change_gdp_df()
         uk_scatter_df = scatter_df.loc[scatter_df["Country"] == "United Kingdom", :]
+        de_scatter_df = scatter_df.loc[scatter_df["Country"] == "Germany", :]
 
         ### Generate axes and labels for gdp and spend
         gdp_ax, gdp_x_label, gdp_y_label = self.generate_axes(
@@ -223,12 +268,6 @@ class SpendingVsGrowthAnimatedScene(Scene):
             Write(demo_dot, run_time=1.0),
             )
         self.wait()
-
-        #demo_v_line = comp_ax.get_vertical_line(demo_point, line_config={"dashed_ratio": 0.5})
-        #demo_h_line = comp_ax.get_horizontal_line(demo_point, line_config={"dashed_ratio": 0.5})
-        #self.play(Write(demo_v_line))
-        #self.wait(2)
-        #self.play(Write(demo_h_line))
 
         ### Two further demo points by changing value trackers
         self.play(lower_vt.animate.set_value(1979), upper_vt.animate.set_value(1984), run_time=2.5)
