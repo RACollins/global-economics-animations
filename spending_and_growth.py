@@ -86,50 +86,6 @@ def make_axes(
 ### Scene ###
 #############
 
-q_0 = 3000
-class Test(Scene):
-    def construct(self):
-        y_min, y_max = ValueTracker(0), ValueTracker(6000)
-        y_tick_step = ValueTracker(2000)
-        ax = always_redraw(lambda: Axes(
-            x_range=[0, 60, 15],
-            y_range=[y_min.get_value(), y_max.get_value(), y_tick_step.get_value()],
-            tips=False,
-            axis_config={"include_numbers": True}
-        ))
-
-        #base_flow_line = ax.plot(lambda t: q_0*t/60, color="blue")
-        x_values = list(range(0, 61, 15))
-        base_flow_line = ax.plot_line_graph(
-            x_values=x_values,
-            y_values=[q_0*x/60 for x in x_values],
-            line_color=BLUE,
-            add_vertex_dots=False,
-        )
-
-        self.add(ax)
-        self.play(Create(base_flow_line))
-        self.wait(3)
-
-        #base_flow_line_xfrm = always_redraw(lambda: ax.plot(lambda t: 0, color="blue"))
-        #base_flow_line_xfrm = ax.plot(lambda t: t*0, color="blue")
-        base_flow_line_xfrm = ax.plot_line_graph(
-            x_values=x_values,
-            y_values=[0 for x in x_values],
-            line_color=BLUE,
-            add_vertex_dots=False,
-        )
-        self.play(Transform(base_flow_line, base_flow_line_xfrm))
-        
-        v_group = VGroup(ax, base_flow_line_xfrm)
-        self.wait(2)
-
-        self.play(y_min.animate.set_value(-300),
-                  y_max.animate.set_value(300),
-                  y_tick_step.animate.set_value(100))
-
-        self.wait(5)
-
 class SpendingVsGrowthAnimatedScene(Scene):
 
     def construct(self):
@@ -356,7 +312,114 @@ class SpendingVsGrowthAnimatedScene(Scene):
 
         return ax, x_label, y_label
 
+class ScaleExample1(Scene):
+    def construct(self):
+        q_0 = 300
+        y_min, y_max = ValueTracker(0), ValueTracker(600)
+        y_tick_step = ValueTracker(200)
 
+
+        def make_ax():
+            ax = Axes(
+                x_range=[0, 60, 15],
+                y_range=[y_min.get_value(), y_max.get_value(), y_tick_step.get_value()],
+                tips=False,
+                axis_config={"include_numbers": True},
+              )
+            return ax
+       
+        def axis_updater(mob):
+            old_ax = mob
+            new_ax = make_ax()
+            old_ax.become(new_ax)
+            old_ax.x_axis.x_range = new_ax.x_axis.x_range
+            old_ax.x_axis.scaling = new_ax.x_axis.scaling
+            old_ax.y_axis.x_range = new_ax.y_axis.x_range
+            old_ax.y_axis.scaling = new_ax.y_axis.scaling
+
+
+        def grad_func(t):
+            return q_0*t/6
+
+        def const_func(t):
+            return 0
+         
+        def make_line(ax, f, x_values):
+            line = ax.plot_line_graph(
+                x_values=x_values,
+                y_values=[f(x) for x in x_values],
+                line_color=BLUE,
+                add_vertex_dots=False,
+              )
+            return line
+         
+        def line_updater(mob):
+            mob.become(make_line(ax=ax, f=const_func, x_values=list(range(0, 61, 15))))
+         
+         
+        ax = make_ax()
+        ax.add_updater(axis_updater)
+        self.add(ax)
+
+        base_flow_line = make_line(ax=ax, f=grad_func, x_values=list(range(0, 61, 15)))
+        self.play(Create(base_flow_line))
+        self.wait()
+
+        base_flow_line_xfrm = make_line(ax=ax, f=const_func, x_values=list(range(0, 61, 15)))
+        self.play(Transform(base_flow_line, base_flow_line_xfrm))
+        self.wait()
+     
+        self.remove(base_flow_line)
+        base_flow_line_xfrm.add_updater(line_updater, index=1)
+        self.add(base_flow_line_xfrm)
+
+        self.play(y_min.animate.set_value(-300),
+                  y_max.animate.set_value(300),
+                  y_tick_step.animate.set_value(100))
+
+        self.wait()
+
+class ScaleExample2(Scene):
+    def construct(self):
+        # Expected: points will scale as the x-axis changes
+
+        x_max = ValueTracker(5)
+        def make_ax():
+            return Axes(x_range=[0, x_max.get_value(), 1], y_range=[0, 10, 1])
+       
+        ax = make_ax()
+
+        # Axis updates perfectly
+        def axis_updater(mob):
+            old_ax = mob
+            new_ax = make_ax()
+            old_ax.become(new_ax)
+            old_ax.x_axis.x_range = new_ax.x_axis.x_range
+            old_ax.x_axis.scaling = new_ax.x_axis.scaling
+            old_ax.y_axis.x_range = new_ax.y_axis.x_range
+            old_ax.y_axis.scaling = new_ax.y_axis.scaling
+
+        ax.add_updater(axis_updater)
+
+        # The final value updates and the line shifts, but it's not
+        # drawn on the updated axis. Possibly due to Python scoping?
+        line = ax.plot_line_graph(
+            x_values=[0, 1, 2, 3, 4], y_values=[4, 5, 6, 7, x_max.get_value()]
+        )
+
+        def line_updater(mob):
+            mob.become(
+                ax.plot_line_graph(
+                    x_values=[0, 1, 2, 3, 4], y_values=[4, 5, 6, 7, x_max.get_value()]
+                )
+            )
+
+        line.add_updater(line_updater, index=1)
+
+        self.add(ax, line)
+        self.play(x_max.animate.set_value(10), run_time=4)
+        
+        
 if __name__ == "__main__":
     """ df = get_avg_spend_change_gdp_df()
     filtered_df = df.loc[df["Country"] == "United Kingdom", :].reset_index(drop=True)
