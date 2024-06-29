@@ -64,18 +64,76 @@ class SpendingAnimatedScene(Scene):
         ###################
         ### Definitions ###
         ###################
+
         x_min = ValueTracker(1850)
 
-        #################
-        ### Functions ###
-        #################
+        #########################
+        ### Functions & Scene ###
+        #########################
 
         ### Load data for line graphs and put in DataFrame
         line_graphs_df = get_spend_gdp_df()
         uk_line_graphs_df = line_graphs_df.loc[line_graphs_df["Country"] == "United Kingdom", :].set_index("Year", drop=False)
 
+        ### Make axis function and generate
+        def make_ax():
+            ax = Axes(
+                 x_range=[x_min.get_value(), 2021, 10],
+                 y_range=[0, 101, 10],
+                 x_length=12,
+                 y_length=6,
+                 axis_config={
+                      "color": WHITE,  # <- not needed if backgroud colour is default BLACK
+                      "include_tip": False,
+                      "include_numbers": False,
+                      "decimal_number_config": {
+                           "num_decimal_places": 0,
+                           "group_with_commas": False,  # <- This removes the comma delimitation
+                        },
+                    },
+                    x_axis_config={"numbers_to_include": list(range(1860, 2021, 20))},
+                    y_axis_config={"numbers_to_include": list(range(0, 100, 20))},
+            )
+            return ax
+        ax = make_ax()
+        
+        ### Define axis updater function and add to axis object
+        def axis_updater(mob):
+            old_ax = mob
+            new_ax = make_ax()
+            old_ax.become(new_ax)
+            old_ax.x_axis.x_range = new_ax.x_axis.x_range
+            old_ax.x_axis.scaling = new_ax.x_axis.scaling
+            old_ax.y_axis.x_range = new_ax.y_axis.x_range
+            old_ax.y_axis.scaling = new_ax.y_axis.scaling
+        ax.add_updater(axis_updater)
+
+        ### Make line function and generate line object
+        line = ax.plot_line_graph(
+            x_values=uk_line_graphs_df["Year"],
+            y_values=uk_line_graphs_df["Government Expenditure (IMF & Wiki)"],
+            line_color=PURE_GREEN,
+            add_vertex_dots=False,
+        )
+        
+        ### Define line updater function and add to line object
+        def line_updater(mob):
+            mob.become(
+                ax.plot_line_graph(
+                    x_values=uk_line_graphs_df["Year"],
+                    y_values=uk_line_graphs_df["Government Expenditure (IMF & Wiki)"],
+                    line_color=PURE_GREEN,
+                    add_vertex_dots=False,
+                )
+            )
+        line.add_updater(line_updater, index=1)
+        
+        ### Moment of truth!
+        self.add(ax, line)
+        self.play(x_min.animate.set_value(1991), run_time=5)
+
 if __name__ == "__main__":
-    df = get_spend_gdp_df().sort_values(by=["GDP per capita (OWiD)"], ascending=False)
+    """ df = get_spend_gdp_df().sort_values(by=["GDP per capita (OWiD)"], ascending=False)
     # filtered_df = df.loc[df["Country"] == "United Kingdom", :].reset_index(drop=True)
-    print(df.head(40))
+    print(df.head(40)) """
     pass
