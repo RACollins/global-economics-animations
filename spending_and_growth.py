@@ -28,13 +28,20 @@ def get_spend_gdp_df() -> pd.DataFrame:
         .sort_values(["Country", "Year"])
     )
     ### Convert to K$s
-    df["GDP per capita (OWiD)"] = df["GDP per capita (OWiD)"].div(1000)
+    #df["GDP per capita (OWiD)"] = df["GDP per capita (OWiD)"].div(1000)
     return df
 
 
 def get_avg_spend_change_gdp_df() -> pd.DataFrame:
     df = (
         pd.read_csv(cwd + "/data/average_spend_vs_change_in_gdp.csv")
+        .drop(columns=["Unnamed: 0"])
+    )
+    return df
+
+def get_avg_spend_avg_change_gdp_df() -> pd.DataFrame:
+    df = (
+        pd.read_csv(cwd + "/data/average_spend_vs_average_change_in_gdp.csv")
         .drop(columns=["Unnamed: 0"])
     )
     return df
@@ -54,9 +61,17 @@ def make_axes(
     y_range: list,
     x_numbers_to_include: list,
     y_numbers_to_include: list,
+    log_y: bool,
     x_length: int,
     y_length: int,
 ):
+    if log_y:
+        y_axis_config={
+            "numbers_to_include": y_numbers_to_include,
+            "scaling": LogBase(custom_labels=True)
+        }
+    else:
+        y_axis_config={"numbers_to_include": y_numbers_to_include}
     ax = Axes(
         x_range=x_range,
         y_range=y_range,
@@ -72,7 +87,7 @@ def make_axes(
             },
         },
         x_axis_config={"numbers_to_include": x_numbers_to_include},
-        y_axis_config={"numbers_to_include": y_numbers_to_include},
+        y_axis_config=y_axis_config,
     )
     return ax
 
@@ -93,19 +108,18 @@ class SpendingVsGrowthAnimatedScene(Scene):
         ### Load data for line graphs and put in DataFrame
         line_graphs_df = get_spend_gdp_df()
         uk_line_graphs_df = line_graphs_df.loc[line_graphs_df["Country"] == "United Kingdom", :].set_index("Year", drop=False)
-        de_line_graphs_df = line_graphs_df.loc[line_graphs_df["Country"] == "Germany", :].set_index("Year", drop=False)
 
         ### Load data for scatter plot
-        scatter_df = get_avg_spend_change_gdp_df()
+        scatter_df = get_avg_spend_avg_change_gdp_df()
         uk_scatter_df = scatter_df.loc[scatter_df["Country"] == "United Kingdom", :]
-        de_scatter_df = scatter_df.loc[scatter_df["Country"] == "Germany", :]
 
         ### Generate axes and labels for gdp and spend
         gdp_ax, gdp_x_label, gdp_y_label = self.generate_axes(
             x_range=[1850, 2021, 10],
-            y_range=[4, 40, 1],
+            y_range=[2, 5.1, 1],
             x_numbers_to_include=list(range(1860, 2021, 20)),
-            y_numbers_to_include=list(range(5, 40, 5)),
+            y_numbers_to_include=list(range(2, 6, 1)),
+            log_y=True,
             animate_axes=False,
             x_axis_label="Year",
             y_axis_label="GDP per capita (kUSD)",
@@ -118,6 +132,7 @@ class SpendingVsGrowthAnimatedScene(Scene):
             y_range=[0, 101, 10],
             x_numbers_to_include=list(range(1860, 2021, 20)),
             y_numbers_to_include=list(range(0, 100, 20)),
+            log_y=False,
             animate_axes=False,
             x_axis_label="Year",
             y_axis_label="Government Expenditure (%)",
@@ -167,12 +182,13 @@ class SpendingVsGrowthAnimatedScene(Scene):
         ### Draw composite axes to right
         comp_ax, comp_x_label, comp_y_label = self.generate_axes(
             x_range=[0, 81, 10],
-            y_range=[-81, 81, 10],
-            x_numbers_to_include=list(range(0, 81, 20)),
-            y_numbers_to_include=list(range(-80, 81, 20)),
+            y_range=[-21, 21, 5],
+            x_numbers_to_include=list(range(0, 81, 10)),
+            y_numbers_to_include=list(range(-20, 21, 5)),
+            log_y=False,
             animate_axes=True,
             x_axis_label="Average Government Expenditure (%)",
-            y_axis_label="Increase in GDP per capita (%)",
+            y_axis_label="Average change in GDP per capita (%)",
             font_size=14, 
             x_length=14,
             y_length=12,
@@ -234,7 +250,7 @@ class SpendingVsGrowthAnimatedScene(Scene):
 
 
         ### Animate the value trackers incrementally
-        for i in range(2019-1855):
+        """ for i in range(2019-1855):
             self.play(lower_vt.animate.increment_value(1), upper_vt.animate.increment_value(1), run_time=0.05)
             self.add(
                 Dot(
@@ -249,7 +265,7 @@ class SpendingVsGrowthAnimatedScene(Scene):
                     radius=0.05,
                     fill_opacity=0.5,
                 )
-            )
+            ) """
 
     def years_to_coords(
             self,
@@ -259,7 +275,7 @@ class SpendingVsGrowthAnimatedScene(Scene):
     ) -> list[float, float]:
         coords = df.loc[
             (df["start_year"] == start_year) & (df["end_year"] == end_year),
-            ["Average Government Expenditure as % of GDP", "Percentage change in GDP per capita USD"]
+            ["Average Government Expenditure as % of GDP", "Average percentage change in GDP per capita USD"]
         ].values[0]
         return coords
 
@@ -269,6 +285,7 @@ class SpendingVsGrowthAnimatedScene(Scene):
         y_range: list,
         x_numbers_to_include: list,
         y_numbers_to_include: list,
+        log_y: bool,
         animate_axes: bool,
         x_axis_label: str,
         y_axis_label: str,
@@ -283,6 +300,7 @@ class SpendingVsGrowthAnimatedScene(Scene):
             y_range=y_range,
             x_numbers_to_include=x_numbers_to_include,
             y_numbers_to_include=y_numbers_to_include,
+            log_y=log_y,
             x_length=x_length,
             y_length=y_length,
         )
