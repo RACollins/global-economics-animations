@@ -55,6 +55,12 @@ def add_radius_col(
     ) * (highest_radius - lowest_radius) + lowest_radius
     return df
 
+def make_country_to_colour_map(df: pd.DataFrame) -> dict:
+    df_copy = df.copy()
+    df_copy["colour"] = df_copy["Region"].map(colour_map)
+    country_to_colour_map = dict(zip(df_copy["Country"], df_copy["colour"]))
+    return country_to_colour_map
+
 
 def make_axes(
     x_range: list,
@@ -104,14 +110,19 @@ def make_axes(
 class SpendingVsGrowthAnimatedScene(Scene):
 
     def construct(self):
+        ### Demo country
+        demo_country = "United Kingdom"
 
         ### Load data for line graphs and put in DataFrame
         line_graphs_df = get_spend_gdp_df()
-        uk_line_graphs_df = line_graphs_df.loc[line_graphs_df["Country"] == "United Kingdom", :].set_index("Year", drop=False)
+        uk_line_graphs_df = line_graphs_df.loc[line_graphs_df["Country"] == demo_country, :].set_index("Year", drop=False)
 
         ### Load data for scatter plot
         scatter_df = get_avg_spend_avg_change_gdp_df()
-        uk_scatter_df = scatter_df.loc[scatter_df["Country"] == "United Kingdom", :]
+        uk_scatter_df = scatter_df.loc[scatter_df["Country"] == demo_country, :]
+
+        ### Colour mapping dict
+        country_to_colour_map = make_country_to_colour_map(scatter_df)
 
         ### Generate axes and labels for gdp and spend
         gdp_ax, gdp_x_label, gdp_y_label = self.generate_axes(
@@ -122,7 +133,7 @@ class SpendingVsGrowthAnimatedScene(Scene):
             log_y=True,
             animate_axes=False,
             x_axis_label="Year",
-            y_axis_label="GDP per capita (kUSD)",
+            y_axis_label="GDP per capita (USD)",
             font_size=26, 
             x_length=12,
             y_length=6,
@@ -153,14 +164,16 @@ class SpendingVsGrowthAnimatedScene(Scene):
         gdp_line_graph = gdp_ax.plot_line_graph(
             x_values=uk_line_graphs_df["Year"],
             y_values=uk_line_graphs_df["GDP per capita (OWiD)"],
-            line_color=PURE_GREEN,
+            line_color=country_to_colour_map[demo_country],
             add_vertex_dots=False,
+            stroke_width=2,
         )
         spend_line_graph = spend_ax.plot_line_graph(
             x_values=uk_line_graphs_df["Year"],
             y_values=uk_line_graphs_df["Government Expenditure (IMF & Wiki)"],
-            line_color=PURE_GREEN,
+            line_color=country_to_colour_map[demo_country],
             add_vertex_dots=False,
+            stroke_width=2,
         )
 
         ### Draw plots
@@ -206,14 +219,14 @@ class SpendingVsGrowthAnimatedScene(Scene):
         lower_projecting_line = always_redraw(
             lambda: DashedLine(
                 color=YELLOW,
-                end=gdp_ax.c2p(lower_vt.get_value(), 40),
+                end=gdp_ax.c2p(lower_vt.get_value(), 10e4),
                 start=spend_ax.c2p(lower_vt.get_value(), 0),
             )
         )
         upper_projecting_line = always_redraw(
             lambda: DashedLine(
                 color=YELLOW,
-                end=gdp_ax.c2p(upper_vt.get_value(), 40),
+                end=gdp_ax.c2p(upper_vt.get_value(), 10e4),
                 start=spend_ax.c2p(upper_vt.get_value(), 0),
             )
         )
@@ -227,7 +240,7 @@ class SpendingVsGrowthAnimatedScene(Scene):
                         round(upper_vt.get_value()),
                     )
                 ),
-                color=PURE_GREEN,
+                color=country_to_colour_map[demo_country],
                 radius=0.05,
                 fill_opacity=0.85,
             )
@@ -250,7 +263,7 @@ class SpendingVsGrowthAnimatedScene(Scene):
 
 
         ### Animate the value trackers incrementally
-        """ for i in range(2019-1855):
+        for i in range(2019-1855):
             self.play(lower_vt.animate.increment_value(1), upper_vt.animate.increment_value(1), run_time=0.05)
             self.add(
                 Dot(
@@ -261,11 +274,11 @@ class SpendingVsGrowthAnimatedScene(Scene):
                             round(upper_vt.get_value()),
                         )
                     ),
-                    color=PURE_GREEN,
+                    color=country_to_colour_map[demo_country],
                     radius=0.05,
                     fill_opacity=0.5,
                 )
-            ) """
+            )
 
     def years_to_coords(
             self,
