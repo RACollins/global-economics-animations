@@ -1,6 +1,7 @@
 from manim import *
 import pandas as pd
 import os
+import random
 
 ###################
 ### Definitions ###
@@ -179,10 +180,11 @@ class SpendingVsGrowthAnimatedScene(Scene):
         ### Draw plots
         self.play(
             LaggedStart(
-                Write(spend_line_graph, rate_func=rate_functions.ease_in_quad),
-                Write(gdp_line_graph, rate_func=rate_functions.ease_in_quad),
+                Write(spend_line_graph),
+                Write(gdp_line_graph),
                 lag_ratio=0.25,
                 run_time=6.5,
+                rate_func=rate_functions.ease_in_quad,
             )
         )
         self.wait()
@@ -195,9 +197,9 @@ class SpendingVsGrowthAnimatedScene(Scene):
         ### Draw composite axes to right
         comp_ax, comp_x_label, comp_y_label = self.generate_axes(
             x_range=[0, 81, 10],
-            y_range=[-21, 21, 5],
+            y_range=[-31, 31, 5],
             x_numbers_to_include=list(range(0, 81, 10)),
-            y_numbers_to_include=list(range(-20, 21, 5)),
+            y_numbers_to_include=list(range(-30, 31, 5)),
             log_y=False,
             animate_axes=True,
             x_axis_label="Average Government Expenditure (%)",
@@ -261,8 +263,8 @@ class SpendingVsGrowthAnimatedScene(Scene):
         self.wait(1)
         self.play(lower_vt.animate.set_value(1850), upper_vt.animate.set_value(1855), run_time=2.5)
 
-
-        ### Animate the value trackers incrementally
+        ### Uncomment for real video
+        """ ### Animate the value trackers incrementally
         for i in range(2019-1855):
             self.play(lower_vt.animate.increment_value(1), upper_vt.animate.increment_value(1), run_time=0.05)
             self.add(
@@ -278,7 +280,99 @@ class SpendingVsGrowthAnimatedScene(Scene):
                     radius=0.05,
                     fill_opacity=0.5,
                 )
+            ) """
+        
+        ### Generate dict of dots and add while value tracker changes
+        demo_dots_list = []
+        for lower_bound in list(range(1850, 2015)):
+            upper_bound = lower_bound + 5
+            demo_dots_list.append(
+                Dot(
+                    comp_ax.coords_to_point(
+                        *self.years_to_coords(
+                            uk_scatter_df,
+                            lower_bound,
+                            upper_bound,
+                        )
+                    ),
+                    color=country_to_colour_map[demo_country],
+                    radius=0.05,
+                    fill_opacity=0.5,
+                )
             )
+        self.play(
+            lower_vt.animate.set_value(2014),
+            upper_vt.animate.set_value(2019),
+            LaggedStart(
+                *[Write(d) for d in demo_dots_list],
+                lag_ratio=0.45,
+                rate_func=rate_functions.linear,
+            ),
+            run_time=15.0,
+            rate_func=rate_functions.linear
+        )
+        
+        ### Unwrite the projected lines and demo point from the scene
+        self.play(
+            Unwrite(lower_projecting_line, run_time=1.0),
+            Unwrite(upper_projecting_line, run_time=1.0),
+            Unwrite(demo_dot, run_time=1.0),
+            )
+        
+        ### Find countries within graph limits
+        all_countries = np.union1d(scatter_df["Country"].unique(), line_graphs_df["Country"].unique())
+
+        ### Draw all country lines on left plots
+        gdp_lines_dict, spend_lines_dict = {}, {}
+        for country in all_countries:
+            if country in ["Kuwait", "Qatar"]:
+                continue
+            country_lines_graph_df = (line_graphs_df
+                                      .loc[line_graphs_df["Country"] == country, :]
+                                      .set_index("Year", drop=False))
+            
+            gdp_lines_dict[country] = gdp_ax.plot_line_graph(
+                x_values=country_lines_graph_df["Year"],
+                y_values=country_lines_graph_df["GDP per capita (OWiD)"],
+                line_color=country_to_colour_map[country],
+                add_vertex_dots=False,
+                stroke_width=1,
+            )
+            spend_lines_dict[country] = spend_ax.plot_line_graph(
+                x_values=country_lines_graph_df["Year"],
+                y_values=country_lines_graph_df["Government Expenditure (IMF & Wiki)"],
+                line_color=country_to_colour_map[country],
+                add_vertex_dots=False,
+                stroke_width=1,
+            )
+        
+        ### Transform UK line to thinner line
+        self.play(
+            Transform(spend_line_graph, spend_lines_dict[demo_country]),
+            Transform(gdp_line_graph, gdp_lines_dict[demo_country]),
+            run_time=1,
+        )
+        self.wait()
+
+        ### Generate line plots randomly
+        random_line_plots = np.random.choice(
+            [Write(slg) for k, slg in spend_lines_dict.items()] + [Write(gdplg) for k, gdplg in gdp_lines_dict.items()],
+            (len(all_countries)-2)*2, # <- ignoring two countries
+            replace=False,
+        )
+
+        ### Plot lines
+        self.play(
+            LaggedStart(
+                *random_line_plots,
+                lag_ratio=0.05,
+                run_time=6.5,
+                rate_func=rate_functions.smooth
+            )
+        )
+        self.wait()
+
+        
 
     def years_to_coords(
             self,
