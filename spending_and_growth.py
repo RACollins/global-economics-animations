@@ -412,9 +412,9 @@ class SpendingVsGrowthAnimatedScene(Scene):
                     )
                     alpha = 0.3
                 except IndexError:
-                    #coords = [0.0, 0.0]
-                    #alpha = 0.0
-                    continue
+                    coords = [0.0, 0.0]
+                    alpha = 0.0
+                    #continue
                 dots_list.append(
                     Dot(
                         comp_ax.coords_to_point(*coords),
@@ -447,7 +447,7 @@ class SpendingVsGrowthAnimatedScene(Scene):
         self.play(
             lower_vt.animate.set_value(2014),
             upper_vt.animate.set_value(2019),
-            *lagged_start_list[:50],
+            *lagged_start_list[:10],
             run_time=15.0,
             rate_func=rate_functions.linear
         )
