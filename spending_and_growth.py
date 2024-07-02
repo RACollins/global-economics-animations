@@ -113,6 +113,7 @@ class SpendingVsGrowthAnimatedScene(Scene):
     def construct(self):
         ### Demo country
         demo_country = "United Kingdom"
+        excluded_countries = ["Kuwait", "Qatar"]
 
         ### Load data for line graphs and put in DataFrame
         line_graphs_df = get_spend_gdp_df()
@@ -263,7 +264,7 @@ class SpendingVsGrowthAnimatedScene(Scene):
         self.wait(1)
         self.play(lower_vt.animate.set_value(1850), upper_vt.animate.set_value(1855), run_time=2.5)
 
-        ### Uncomment for real video
+        ### Uncomment for real video, although probably not needed now!
         """ ### Animate the value trackers incrementally
         for i in range(2019-1855):
             self.play(lower_vt.animate.increment_value(1), upper_vt.animate.increment_value(1), run_time=0.05)
@@ -282,7 +283,7 @@ class SpendingVsGrowthAnimatedScene(Scene):
                 )
             ) """
         
-        ### Generate dict of dots and add while value tracker changes
+        ### Generate list of dots and add to scene while value tracker changes
         demo_dots_list = []
         for lower_bound in list(range(1850, 2015)):
             upper_bound = lower_bound + 5
@@ -297,15 +298,15 @@ class SpendingVsGrowthAnimatedScene(Scene):
                     ),
                     color=country_to_colour_map[demo_country],
                     radius=0.05,
-                    fill_opacity=0.5,
+                    fill_opacity=0.3,
                 )
             )
         self.play(
             lower_vt.animate.set_value(2014),
             upper_vt.animate.set_value(2019),
             LaggedStart(
-                *[Write(d) for d in demo_dots_list],
-                lag_ratio=0.45,
+                *[Create(d) for d in demo_dots_list],
+                lag_ratio=5.0,
                 rate_func=rate_functions.linear,
             ),
             run_time=15.0,
@@ -325,7 +326,7 @@ class SpendingVsGrowthAnimatedScene(Scene):
         ### Draw all country lines on left plots
         gdp_lines_dict, spend_lines_dict = {}, {}
         for country in all_countries:
-            if country in ["Kuwait", "Qatar"]:
+            if country in excluded_countries:
                 continue
             country_lines_graph_df = (line_graphs_df
                                       .loc[line_graphs_df["Country"] == country, :]
@@ -371,6 +372,85 @@ class SpendingVsGrowthAnimatedScene(Scene):
             )
         )
         self.wait()
+
+        ### Re-declare ValueTrackers and start it at 1850
+        initial_start_year = 1850
+        initial_end_year = 1855
+        lower_vt = ValueTracker(initial_start_year)
+        upper_vt = ValueTracker(initial_end_year)
+
+        ### Create the line that connects the both graphs, again!
+        lower_projecting_line = always_redraw(
+            lambda: DashedLine(
+                color=YELLOW,
+                end=gdp_ax.c2p(lower_vt.get_value(), 10e4),
+                start=spend_ax.c2p(lower_vt.get_value(), 0),
+            )
+        )
+        upper_projecting_line = always_redraw(
+            lambda: DashedLine(
+                color=YELLOW,
+                end=gdp_ax.c2p(upper_vt.get_value(), 10e4),
+                start=spend_ax.c2p(upper_vt.get_value(), 0),
+            )
+        )
+
+        ### Generate dict of dots for all countries
+        country_dots_dict = {}
+        for country in all_countries:
+            if country in excluded_countries:
+                continue
+            country_scatter_df = scatter_df.loc[scatter_df["Country"] == country, :]
+            dots_list = []
+            for lower_bound in list(range(1850, 2015)):
+                upper_bound = lower_bound + 5
+                try:
+                    coords = self.years_to_coords(
+                        country_scatter_df,
+                        lower_bound,
+                        upper_bound,
+                    )
+                    alpha = 0.3
+                except IndexError:
+                    #coords = [0.0, 0.0]
+                    #alpha = 0.0
+                    continue
+                dots_list.append(
+                    Dot(
+                        comp_ax.coords_to_point(*coords),
+                        color=country_to_colour_map[country],
+                        radius=0.05,
+                        fill_opacity=alpha,
+                    )
+                )
+            country_dots_dict[country] = dots_list
+
+        ### Create initial dots
+        initial_dots = [Write(dots_list[0], run_time=1.0) for country, dots_list in country_dots_dict.items()]
+
+        ### Write the projected lines and initial dots to the scene
+        self.play(
+            Write(lower_projecting_line, run_time=1.0),
+            Write(upper_projecting_line, run_time=1.0),
+            *initial_dots,
+            )
+        self.wait()
+        
+        ### Animate vertical lines and plot dots on right scatter graph
+        lagged_start_list = [
+            LaggedStart(
+                *[Create(d) for d in dots_list],
+                lag_ratio=5.0,
+                rate_func=rate_functions.linear,
+            ) for country, dots_list in country_dots_dict.items()
+        ]
+        self.play(
+            lower_vt.animate.set_value(2014),
+            upper_vt.animate.set_value(2019),
+            *lagged_start_list[:50],
+            run_time=15.0,
+            rate_func=rate_functions.linear
+        )
 
         
 
