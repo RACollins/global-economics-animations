@@ -2,6 +2,7 @@ from manim import *
 import pandas as pd
 import os
 import random
+np.random.seed(37)
 
 ###################
 ### Definitions ###
@@ -113,7 +114,16 @@ class SpendingVsGrowthAnimatedScene(Scene):
     def construct(self):
         ### Demo country
         demo_country = "United Kingdom"
-        excluded_countries = ["Kuwait", "Qatar"]
+        excluded_countries = [
+            "Kuwait",
+            "Qatar",
+            "Equatorial Guinea",
+            "Bulgaria",
+            "Azerbaijan",
+            "Hungary",
+            "Qatar",
+            "Angola"
+        ]
 
         ### Load data for line graphs and put in DataFrame
         line_graphs_df = get_spend_gdp_df()
@@ -198,9 +208,9 @@ class SpendingVsGrowthAnimatedScene(Scene):
         ### Draw composite axes to right
         comp_ax, comp_x_label, comp_y_label = self.generate_axes(
             x_range=[0, 81, 10],
-            y_range=[-31, 31, 5],
+            y_range=[-16, 31, 5],
             x_numbers_to_include=list(range(0, 81, 10)),
-            y_numbers_to_include=list(range(-30, 31, 5)),
+            y_numbers_to_include=list(range(-15, 31, 5)),
             log_y=False,
             animate_axes=True,
             x_axis_label="Average Government Expenditure (%)",
@@ -358,7 +368,7 @@ class SpendingVsGrowthAnimatedScene(Scene):
         ### Generate line plots randomly
         random_line_plots = np.random.choice(
             [Write(slg) for k, slg in spend_lines_dict.items()] + [Write(gdplg) for k, gdplg in gdp_lines_dict.items()],
-            (len(all_countries)-2)*2, # <- ignoring two countries
+            (len(all_countries)-len(excluded_countries))*2, # <- ignoring excluded countries
             replace=False,
         )
 
@@ -398,7 +408,7 @@ class SpendingVsGrowthAnimatedScene(Scene):
         ### Generate dict of dots for all countries
         country_dots_dict = {}
         for country in all_countries:
-            if country in excluded_countries:
+            if country in excluded_countries or country == "United Kingdom":
                 continue
             country_scatter_df = scatter_df.loc[scatter_df["Country"] == country, :]
             dots_list = []
@@ -447,7 +457,7 @@ class SpendingVsGrowthAnimatedScene(Scene):
         self.play(
             lower_vt.animate.set_value(2014),
             upper_vt.animate.set_value(2019),
-            *lagged_start_list[:10],
+            *lagged_start_list[:100],
             run_time=15.0,
             rate_func=rate_functions.linear
         )
@@ -516,113 +526,6 @@ class SpendingVsGrowthAnimatedScene(Scene):
             # self.add(line_graph)
 
         return ax, x_label, y_label
-
-class ScaleExample1(Scene):
-    def construct(self):
-        q_0 = 300
-        y_min, y_max = ValueTracker(0), ValueTracker(600)
-        y_tick_step = ValueTracker(200)
-
-
-        def make_ax():
-            ax = Axes(
-                x_range=[0, 60, 15],
-                y_range=[y_min.get_value(), y_max.get_value(), y_tick_step.get_value()],
-                tips=False,
-                axis_config={"include_numbers": True},
-              )
-            return ax
-       
-        def axis_updater(mob):
-            old_ax = mob
-            new_ax = make_ax()
-            old_ax.become(new_ax)
-            old_ax.x_axis.x_range = new_ax.x_axis.x_range
-            old_ax.x_axis.scaling = new_ax.x_axis.scaling
-            old_ax.y_axis.x_range = new_ax.y_axis.x_range
-            old_ax.y_axis.scaling = new_ax.y_axis.scaling
-
-
-        def grad_func(t):
-            return q_0*t/6
-
-        def const_func(t):
-            return 0
-         
-        def make_line(ax, f, x_values):
-            line = ax.plot_line_graph(
-                x_values=x_values,
-                y_values=[f(x) for x in x_values],
-                line_color=BLUE,
-                add_vertex_dots=False,
-              )
-            return line
-         
-        def line_updater(mob):
-            mob.become(make_line(ax=ax, f=const_func, x_values=list(range(0, 61, 15))))
-         
-         
-        ax = make_ax()
-        ax.add_updater(axis_updater)
-        self.add(ax)
-
-        base_flow_line = make_line(ax=ax, f=grad_func, x_values=list(range(0, 61, 15)))
-        self.play(Create(base_flow_line))
-        self.wait()
-
-        base_flow_line_xfrm = make_line(ax=ax, f=const_func, x_values=list(range(0, 61, 15)))
-        self.play(Transform(base_flow_line, base_flow_line_xfrm))
-        self.wait()
-     
-        self.remove(base_flow_line)
-        base_flow_line_xfrm.add_updater(line_updater, index=1)
-        self.add(base_flow_line_xfrm)
-
-        self.play(y_min.animate.set_value(-300),
-                  y_max.animate.set_value(300),
-                  y_tick_step.animate.set_value(100))
-
-        self.wait()
-
-class ScaleExample2(Scene):
-    def construct(self):
-        # Expected: points will scale as the x-axis changes
-
-        x_max = ValueTracker(5)
-        def make_ax():
-            return Axes(x_range=[0, x_max.get_value(), 1], y_range=[0, 10, 1])
-       
-        ax = make_ax()
-
-        # Axis updates perfectly
-        def axis_updater(mob):
-            old_ax = mob
-            new_ax = make_ax()
-            old_ax.become(new_ax)
-            old_ax.x_axis.x_range = new_ax.x_axis.x_range
-            old_ax.x_axis.scaling = new_ax.x_axis.scaling
-            old_ax.y_axis.x_range = new_ax.y_axis.x_range
-            old_ax.y_axis.scaling = new_ax.y_axis.scaling
-
-        ax.add_updater(axis_updater)
-
-        # The final value updates and the line shifts, but it's not
-        # drawn on the updated axis. Possibly due to Python scoping?
-        line = ax.plot_line_graph(
-            x_values=[0, 1, 2, 3, 4], y_values=[4, 5, 6, 7, x_max.get_value()]
-        )
-
-        def line_updater(mob):
-            mob.become(
-                ax.plot_line_graph(
-                    x_values=[0, 1, 2, 3, 4], y_values=[4, 5, 6, 7, x_max.get_value()]
-                )
-            )
-
-        line.add_updater(line_updater, index=1)
-
-        self.add(ax, line)
-        self.play(x_max.animate.set_value(10), run_time=4)
         
         
 if __name__ == "__main__":
