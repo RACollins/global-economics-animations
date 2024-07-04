@@ -447,6 +447,7 @@ class SpendingVsGrowthAnimatedScene(Scene):
         self.wait()
         
         ### Animate vertical lines and plot dots on right scatter graph
+        ### Will take long time to render!
         lagged_start_list = [
             LaggedStart(
                 *[Create(d) for d in dots_list],
@@ -457,10 +458,16 @@ class SpendingVsGrowthAnimatedScene(Scene):
         self.play(
             lower_vt.animate.set_value(2014),
             upper_vt.animate.set_value(2019),
-            *lagged_start_list[:100],
+            *lagged_start_list,
             run_time=15.0,
             rate_func=rate_functions.linear
         )
+
+        ### Unwrite the projected lines
+        self.play(
+            Unwrite(lower_projecting_line, run_time=1.0),
+            Unwrite(upper_projecting_line, run_time=1.0),
+            )
 
         
 
