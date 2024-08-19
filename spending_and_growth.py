@@ -1,8 +1,8 @@
 from manim import *
 import pandas as pd
 import os
-import random
 np.random.seed(37)
+
 
 ###################
 ### Definitions ###
@@ -17,6 +17,7 @@ colour_map = {
     "Europe": PURE_GREEN,
     "Oceania": PURE_BLUE,
 }
+
 
 #################
 ### Functions ###
@@ -56,6 +57,7 @@ def add_radius_col(
         df["Population"].max() - df["Population"].min()
     ) * (highest_radius - lowest_radius) + lowest_radius
     return df
+
 
 def make_country_to_colour_map(df: pd.DataFrame) -> dict:
     df_copy = df.copy()
@@ -108,6 +110,7 @@ def make_axes(
 #############
 ### Scene ###
 #############
+
 
 class SpendingVsGrowthAnimatedScene(Scene):
 
@@ -193,7 +196,7 @@ class SpendingVsGrowthAnimatedScene(Scene):
             LaggedStart(
                 Write(spend_line_graph),
                 Write(gdp_line_graph),
-                lag_ratio=0.25,
+                lag_ratio=0.0,  #<-- Equivalent to no lag
                 run_time=6.5,
                 rate_func=rate_functions.ease_in_quad,
             )
@@ -208,9 +211,9 @@ class SpendingVsGrowthAnimatedScene(Scene):
         ### Draw composite axes to right
         comp_ax, comp_x_label, comp_y_label = self.generate_axes(
             x_range=[0, 81, 10],
-            y_range=[-16, 31, 5],
+            y_range=[-21, 21, 5],
             x_numbers_to_include=list(range(0, 81, 10)),
-            y_numbers_to_include=list(range(-15, 31, 5)),
+            y_numbers_to_include=list(range(-20, 21, 5)),
             log_y=False,
             animate_axes=True,
             x_axis_label="Average Government Expenditure (%)",
@@ -273,25 +276,6 @@ class SpendingVsGrowthAnimatedScene(Scene):
         self.play(lower_vt.animate.set_value(1916), upper_vt.animate.set_value(1921), run_time=3.5)
         self.wait(1)
         self.play(lower_vt.animate.set_value(1850), upper_vt.animate.set_value(1855), run_time=2.5)
-
-        ### Uncomment for real video, although probably not needed now!
-        """ ### Animate the value trackers incrementally
-        for i in range(2019-1855):
-            self.play(lower_vt.animate.increment_value(1), upper_vt.animate.increment_value(1), run_time=0.05)
-            self.add(
-                Dot(
-                    comp_ax.coords_to_point(
-                        *self.years_to_coords(
-                            uk_scatter_df,
-                            round(lower_vt.get_value()),
-                            round(upper_vt.get_value()),
-                        )
-                    ),
-                    color=country_to_colour_map[demo_country],
-                    radius=0.05,
-                    fill_opacity=0.5,
-                )
-            ) """
         
         ### Generate list of dots and add to scene while value tracker changes
         demo_dots_list = []
@@ -383,7 +367,9 @@ class SpendingVsGrowthAnimatedScene(Scene):
         )
         self.wait()
 
-        ### Re-declare ValueTrackers and start it at 1850
+        ### Transform lines to weighted region averages
+
+        """ ### Re-declare ValueTrackers and start it at 1850
         initial_start_year = 1850
         initial_end_year = 1855
         lower_vt = ValueTracker(initial_start_year)
@@ -467,7 +453,7 @@ class SpendingVsGrowthAnimatedScene(Scene):
         self.play(
             Unwrite(lower_projecting_line, run_time=1.0),
             Unwrite(upper_projecting_line, run_time=1.0),
-            )
+            ) """
 
         
 
