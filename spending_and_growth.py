@@ -49,6 +49,44 @@ def get_avg_spend_avg_change_gdp_df() -> pd.DataFrame:
     )
     return df
 
+def get_rgn_avg_spend_rgn_avg_change_gdp_df() -> pd.DataFrame:
+    df = (
+        pd.read_csv(cwd + "/data/region_average_spend_vs_region_average_change_in_gdp.csv")
+        .drop(columns=["Unnamed: 0"])
+    )
+    return df
+
+def make_region_avg_df(spending_df, weight_pop):
+    if weight_pop:
+        wm = lambda x: np.average(x, weights=spending_df.loc[x.index, "Population"])
+        region_avg_spending_df = (
+            spending_df.groupby(["Region", "Year"])
+            .agg(
+                **{
+                    "Population": ("Population", "sum"),
+                    "GDP per capita (OWiD)": ("GDP per capita (OWiD)", wm),
+                    "Government Expenditure (IMF & Wiki)": (
+                        "Government Expenditure (IMF & Wiki)",
+                        wm,
+                    ),
+                }
+            )
+            .reset_index()
+        )
+    else:
+        region_avg_spending_df = (
+            spending_df.groupby(["Region", "Year"])
+            .agg(
+                {
+                    "Population": "sum",
+                    "GDP per capita (OWiD)": "mean",
+                    "Government Expenditure (IMF & Wiki)": "mean",
+                }
+            )
+            .reset_index()
+        )
+    region_avg_spending_df["Country"] = region_avg_spending_df["Region"] + "_avg"
+    return region_avg_spending_df
 
 def add_radius_col(
     df: pd.DataFrame, lowest_radius: float, highest_radius: float
@@ -124,17 +162,22 @@ class SpendingVsGrowthAnimatedScene(Scene):
             "Bulgaria",
             "Azerbaijan",
             "Hungary",
-            "Qatar",
             "Angola"
         ]
 
         ### Load data for line graphs and put in DataFrame
         line_graphs_df = get_spend_gdp_df()
-        uk_line_graphs_df = line_graphs_df.loc[line_graphs_df["Country"] == demo_country, :].set_index("Year", drop=False)
+        uk_line_graphs_df = (
+             line_graphs_df
+             .loc[line_graphs_df["Country"] == demo_country, :]
+             .set_index("Year", drop=False)
+        )
+        avg_line_graphs_df = make_region_avg_df(line_graphs_df, weight_pop=True)
 
         ### Load data for scatter plot
         scatter_df = get_avg_spend_avg_change_gdp_df()
         uk_scatter_df = scatter_df.loc[scatter_df["Country"] == demo_country, :]
+        rgn_avg_scatter_df = get_rgn_avg_spend_rgn_avg_change_gdp_df()
 
         ### Colour mapping dict
         country_to_colour_map = make_country_to_colour_map(scatter_df)
@@ -313,6 +356,16 @@ class SpendingVsGrowthAnimatedScene(Scene):
             Unwrite(upper_projecting_line, run_time=1.0),
             Unwrite(demo_dot, run_time=1.0),
             )
+        self.wait()
+        
+        ### Remove UK lines and dots
+        self.play(
+            Unwrite(spend_line_graph),
+            Unwrite(gdp_line_graph),
+            *[Unwrite(d) for d in demo_dots_list],
+            run_time=1,
+        )
+        self.wait()
         
         ### Find countries within graph limits
         all_countries = np.union1d(scatter_df["Country"].unique(), line_graphs_df["Country"].unique())
@@ -340,19 +393,11 @@ class SpendingVsGrowthAnimatedScene(Scene):
                 add_vertex_dots=False,
                 stroke_width=1,
             )
-        
-        ### Transform UK line to thinner line
-        self.play(
-            Transform(spend_line_graph, spend_lines_dict[demo_country]),
-            Transform(gdp_line_graph, gdp_lines_dict[demo_country]),
-            run_time=1,
-        )
-        self.wait()
 
         ### Generate line plots randomly
         random_line_plots = np.random.choice(
             [Write(slg) for k, slg in spend_lines_dict.items()] + [Write(gdplg) for k, gdplg in gdp_lines_dict.items()],
-            (len(all_countries)-len(excluded_countries))*2, # <- ignoring excluded countries
+            (len(all_countries)-len(excluded_countries))*2,  #<-- ignoring excluded countries
             replace=False,
         )
 
@@ -367,9 +412,48 @@ class SpendingVsGrowthAnimatedScene(Scene):
         )
         self.wait()
 
-        ### Transform lines to weighted region averages
+        ### Generate dict of region average lines
+        avg_gdp_lines_dict, avg_spend_lines_dict = {}, {}
+        for region, colour in colour_map.items():
+            country = region + "_avg"
+            average_lines_graph_df = (avg_line_graphs_df
+                                      .loc[avg_line_graphs_df["Region"] == region, :]
+                                      .set_index("Year", drop=False))
+            
+            avg_gdp_lines_dict[region] = gdp_ax.plot_line_graph(
+                x_values=average_lines_graph_df["Year"],
+                y_values=average_lines_graph_df["GDP per capita (OWiD)"],
+                line_color=colour_map[region],
+                add_vertex_dots=False,
+                stroke_width=1,
+            )
+            avg_spend_lines_dict[region] = spend_ax.plot_line_graph(
+                x_values=average_lines_graph_df["Year"],
+                y_values=average_lines_graph_df["Government Expenditure (IMF & Wiki)"],
+                line_color=colour_map[region],
+                add_vertex_dots=False,
+                stroke_width=1,
+            )
 
-        """ ### Re-declare ValueTrackers and start it at 1850
+        ### Transform lines to weighted region average lines
+        to_avg_transforms = []
+        for country in all_countries:
+            if country in excluded_countries:
+                continue
+            region = line_graphs_df.loc[line_graphs_df["Country"] == country, "Region"].values[0]
+            to_avg_transforms.append(
+                Transform(gdp_lines_dict[country], avg_gdp_lines_dict[region])
+            )
+            to_avg_transforms.append(
+                Transform(spend_lines_dict[country], avg_spend_lines_dict[region])
+            )
+        self.play(
+            *to_avg_transforms,
+            run_time=1,
+        )
+        self.wait()
+
+        ### Re-declare ValueTrackers and start it at 1850
         initial_start_year = 1850
         initial_end_year = 1855
         lower_vt = ValueTracker(initial_start_year)
@@ -391,18 +475,18 @@ class SpendingVsGrowthAnimatedScene(Scene):
             )
         )
 
-        ### Generate dict of dots for all countries
-        country_dots_dict = {}
-        for country in all_countries:
-            if country in excluded_countries or country == "United Kingdom":
-                continue
-            country_scatter_df = scatter_df.loc[scatter_df["Country"] == country, :]
+        ### Generate dict of dots for all region averages
+        avg_region_dots_dict = {}
+        for region, colour in colour_map.items():
+            region_scatter_df = (
+                rgn_avg_scatter_df.loc[rgn_avg_scatter_df["Region"] == region, :]
+            )
             dots_list = []
             for lower_bound in list(range(1850, 2015)):
                 upper_bound = lower_bound + 5
                 try:
                     coords = self.years_to_coords(
-                        country_scatter_df,
+                        region_scatter_df,
                         lower_bound,
                         upper_bound,
                     )
@@ -414,15 +498,15 @@ class SpendingVsGrowthAnimatedScene(Scene):
                 dots_list.append(
                     Dot(
                         comp_ax.coords_to_point(*coords),
-                        color=country_to_colour_map[country],
+                        color=colour,
                         radius=0.05,
                         fill_opacity=alpha,
                     )
                 )
-            country_dots_dict[country] = dots_list
+            avg_region_dots_dict[region] = dots_list
 
         ### Create initial dots
-        initial_dots = [Write(dots_list[0], run_time=1.0) for country, dots_list in country_dots_dict.items()]
+        initial_dots = [Write(dots_list[0], run_time=1.0) for region, dots_list in avg_region_dots_dict.items()]
 
         ### Write the projected lines and initial dots to the scene
         self.play(
@@ -434,12 +518,13 @@ class SpendingVsGrowthAnimatedScene(Scene):
         
         ### Animate vertical lines and plot dots on right scatter graph
         ### Will take long time to render!
+        ### But maybe not so long after the switch to region averages
         lagged_start_list = [
             LaggedStart(
                 *[Create(d) for d in dots_list],
                 lag_ratio=5.0,
                 rate_func=rate_functions.linear,
-            ) for country, dots_list in country_dots_dict.items()
+            ) for region, dots_list in avg_region_dots_dict.items()
         ]
         self.play(
             lower_vt.animate.set_value(2014),
@@ -453,7 +538,7 @@ class SpendingVsGrowthAnimatedScene(Scene):
         self.play(
             Unwrite(lower_projecting_line, run_time=1.0),
             Unwrite(upper_projecting_line, run_time=1.0),
-            ) """
+            )
 
         
 
