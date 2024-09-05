@@ -357,6 +357,9 @@ class SpendingVsGrowthAnimatedScene(Scene):
             Unwrite(demo_dot, run_time=1.0),
             )
         self.wait()
+
+        ### Transform gdp per capita to show debt-adjusted data
+
         
         ### Remove UK lines and dots
         self.play(
