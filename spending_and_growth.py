@@ -34,6 +34,13 @@ def get_spend_gdp_df() -> pd.DataFrame:
     #df["GDP per capita (OWiD)"] = df["GDP per capita (OWiD)"].div(1000)
     return df
 
+def get_spend_gdp_debt_adjusted_df() -> pd.DataFrame:
+    df = (
+        pd.read_csv(cwd + "/data/spending_and_gdp_per_capita_debt_adjusted.csv")
+        .sort_values(["Country", "Year"])
+    )
+    return df
+
 
 def get_avg_spend_change_gdp_df() -> pd.DataFrame:
     df = (
@@ -45,6 +52,13 @@ def get_avg_spend_change_gdp_df() -> pd.DataFrame:
 def get_avg_spend_avg_change_gdp_df() -> pd.DataFrame:
     df = (
         pd.read_csv(cwd + "/data/average_spend_vs_average_change_in_gdp.csv")
+        .drop(columns=["Unnamed: 0"])
+    )
+    return df
+
+def get_avg_spend_avg_change_gdp_debt_adjusted_df() -> pd.DataFrame:
+    df = (
+        pd.read_csv(cwd + "/data/average_spend_vs_average_change_in_gdp_debt_adjusted.csv")
         .drop(columns=["Unnamed: 0"])
     )
     return df
@@ -172,11 +186,13 @@ class SpendingVsGrowthAnimatedScene(Scene):
              .loc[line_graphs_df["Country"] == demo_country, :]
              .set_index("Year", drop=False)
         )
+        uk_line_graphs_debt_adjusted_df = get_spend_gdp_debt_adjusted_df()
         avg_line_graphs_df = make_region_avg_df(line_graphs_df, weight_pop=True)
 
         ### Load data for scatter plot
         scatter_df = get_avg_spend_avg_change_gdp_df()
         uk_scatter_df = scatter_df.loc[scatter_df["Country"] == demo_country, :]
+        uk_scatter_debt_adjusted_df = get_avg_spend_avg_change_gdp_debt_adjusted_df()
         rgn_avg_scatter_df = get_rgn_avg_spend_rgn_avg_change_gdp_df()
 
         ### Colour mapping dict
@@ -357,6 +373,44 @@ class SpendingVsGrowthAnimatedScene(Scene):
             Unwrite(demo_dot, run_time=1.0),
             )
         self.wait()
+
+        ### Transform gdp per capita to show debt-adjusted data
+        ### First, generate new line graph data
+        gdp_line_graph_debt_adjusted = gdp_ax.plot_line_graph(
+            x_values=uk_line_graphs_debt_adjusted_df["Year"],
+            y_values=uk_line_graphs_debt_adjusted_df["GDP per capita (OWiD)"],
+            line_color=country_to_colour_map[demo_country],
+            add_vertex_dots=False,
+            stroke_width=2,
+        )
+
+        ### Then, generate new dot data
+        demo_dots_list_debt_adjusted = []
+        for lower_bound in list(range(1850, 2015)):
+            upper_bound = lower_bound + 5
+            demo_dots_list_debt_adjusted.append(
+                Dot(
+                    comp_ax.coords_to_point(
+                        *self.years_to_coords(
+                            uk_scatter_debt_adjusted_df,
+                            lower_bound,
+                            upper_bound,
+                        )
+                    ),
+                    color=country_to_colour_map[demo_country],
+                    radius=0.05,
+                    fill_opacity=0.3,
+                )
+            )
+
+        ### Finally, animate the transformations
+        self.play(
+            Transform(gdp_line_graph, gdp_line_graph_debt_adjusted),
+            *[Transform(d, demo_dots_list_debt_adjusted[i]) 
+              for i, d in enumerate(demo_dots_list)],
+            run_time=1,
+        )
+        self.wait(2)
         
         ### Remove UK lines and dots
         self.play(
