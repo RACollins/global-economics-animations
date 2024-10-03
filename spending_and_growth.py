@@ -411,6 +411,9 @@ class SpendingVsGrowthAnimatedScene(Scene):
             run_time=1,
         )
         self.wait(2)
+
+        ### Now add a few selected countries in the same manner as the UK
+        
         
         ### Remove UK lines and dots
         self.play(
