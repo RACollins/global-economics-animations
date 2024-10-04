@@ -250,17 +250,20 @@ class SpendingVsGrowthAnimatedScene(Scene):
             stroke_width=2,
         )
 
-        ### Draw plots
+        # Create the "United Kingdom" text
+        uk_text = Text("United Kingdom", font_size=14, color=WHITE)
+        uk_text.move_to(gdp_ax.c2p(2015, 1e5))  # Adjusted to top right of gdp_ax
+
+        ### Draw plots and text
         self.play(
-            LaggedStart(
-                Write(spend_line_graph),
-                Write(gdp_line_graph),
-                lag_ratio=0.0,  #<-- Equivalent to no lag
-                run_time=6.5,
-                rate_func=rate_functions.ease_in_quad,
-            )
+            Write(spend_line_graph, run_time=6.5, rate_func=rate_functions.ease_in_quad),
+            Write(gdp_line_graph, run_time=6.5, rate_func=rate_functions.ease_in_quad),
+            Write(uk_text, run_time=1.0)
         )
         self.wait()
+
+        ### Unwrite the text
+        self.play(Unwrite(uk_text, run_time=1.0))
 
         ### Add line plots to stacked vgroups and move to left
         stacked_plots_vgroup += gdp_line_graph
@@ -413,8 +416,8 @@ class SpendingVsGrowthAnimatedScene(Scene):
         self.wait(2)
 
         ### Now add a few selected countries in the same manner as the UK
-        
-        
+
+
         ### Remove UK lines and dots
         self.play(
             Unwrite(spend_line_graph),
