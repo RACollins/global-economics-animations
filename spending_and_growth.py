@@ -23,15 +23,13 @@ colour_map = {
 ### Functions ###
 #################
 
-
+### Line graphs
 def get_spend_gdp_df() -> pd.DataFrame:
     df = (
         pd.read_csv(cwd + "/data/spending_and_gdp_per_capita.csv")
         .drop(columns=["Unnamed: 0"])
         .sort_values(["Country", "Year"])
     )
-    ### Convert to K$s
-    #df["GDP per capita (OWiD)"] = df["GDP per capita (OWiD)"].div(1000)
     return df
 
 def get_spend_gdp_debt_adjusted_df() -> pd.DataFrame:
@@ -41,14 +39,21 @@ def get_spend_gdp_debt_adjusted_df() -> pd.DataFrame:
     )
     return df
 
-
-def get_avg_spend_change_gdp_df() -> pd.DataFrame:
+def get_region_avg_spend_gdp_df() -> pd.DataFrame:
     df = (
-        pd.read_csv(cwd + "/data/average_spend_vs_change_in_gdp.csv")
-        .drop(columns=["Unnamed: 0"])
+        pd.read_csv(cwd + "/data/region_average_spending_and_gdp_per_capita.csv")
+        .sort_values(["Country", "Year"])
     )
     return df
 
+def get_region_avg_spend_gdp_debt_adjusted_df() -> pd.DataFrame:
+    df = (
+        pd.read_csv(cwd + "/data/region_average_spending_and_gdp_per_capita_debt_adjusted.csv")
+        .sort_values(["Country", "Year"])
+    )
+    return df
+
+### Scatter graphs
 def get_avg_spend_avg_change_gdp_df() -> pd.DataFrame:
     df = (
         pd.read_csv(cwd + "/data/average_spend_vs_average_change_in_gdp.csv")
@@ -177,9 +182,9 @@ class SpendingVsGrowthAnimatedScene(Scene):
         ### Demo country
         demo_country = "United Kingdom"
         focus_countries = [
+            "Europe",
             "United States",
             "Japan",
-            "Europe",
         ]
         excluded_countries = [
             "Kuwait",
@@ -204,8 +209,11 @@ class SpendingVsGrowthAnimatedScene(Scene):
             .loc[line_graphs_debt_adjusted_df["Country"] == demo_country, :]
             .set_index("Year", drop=False)
         )
-        avg_line_graphs_df = make_region_avg_df(line_graphs_df, weight_pop=True)
-        avg_line_graphs_debt_adjusted_df = make_region_avg_df(line_graphs_debt_adjusted_df, weight_pop=True)
+        ### Don't bother calculating, just import from dashboard data
+        """ avg_line_graphs_df = make_region_avg_df(line_graphs_df, weight_pop=True)
+        avg_line_graphs_debt_adjusted_df = make_region_avg_df(line_graphs_debt_adjusted_df, weight_pop=True) """
+        avg_line_graphs_df = get_region_avg_spend_gdp_df()
+        avg_line_graphs_debt_adjusted_df = get_region_avg_spend_gdp_debt_adjusted_df()
 
         ### Load data for scatter plot
         scatter_df = get_avg_spend_avg_change_gdp_df()
@@ -450,34 +458,38 @@ class SpendingVsGrowthAnimatedScene(Scene):
         ### Do the same animation for selected countries
         for focus_country in focus_countries:
             if focus_country in ["Europe"]:
-                line_graphs_df = avg_line_graphs_df
-                line_graphs_debt_adjusted_df = avg_line_graphs_debt_adjusted_df
-                scatter_df = rgn_avg_scatter_df
-                fc_scatter_debt_adjusted_df = rgn_avg_debt_adjusted_scatter_df
+                fc_line_graphs_df = avg_line_graphs_df.copy()
+                fc_line_graphs_debt_adjusted_df = avg_line_graphs_debt_adjusted_df.copy()
+                fc_scatter_df = rgn_avg_scatter_df.copy()
+                fc_scatter_debt_adjusted_df = rgn_avg_debt_adjusted_scatter_df.copy()
                 country_region = "Region"
                 cmap = colour_map
             else:
+                fc_line_graphs_df = line_graphs_df.copy()
+                fc_line_graphs_debt_adjusted_df = line_graphs_debt_adjusted_df.copy()
+                fc_scatter_df = scatter_df.copy()
+                fc_scatter_debt_adjusted_df = scatter_debt_adjusted_df.copy()
                 country_region = "Country"
                 cmap = country_to_colour_map
 
 
             ### Create dfs for line plots
             fc_line_graphs_df = (
-                line_graphs_df
-                .loc[line_graphs_df[country_region] == focus_country, :]
+                fc_line_graphs_df
+                .loc[fc_line_graphs_df[country_region] == focus_country, :]
                 .set_index("Year", drop=False)
             )
             fc_line_graphs_debt_adjusted_df = (
-                line_graphs_debt_adjusted_df
-                .loc[line_graphs_debt_adjusted_df[country_region] == focus_country, :]
+                fc_line_graphs_debt_adjusted_df
+                .loc[fc_line_graphs_debt_adjusted_df[country_region] == focus_country, :]
                 .set_index("Year", drop=False)
             )
 
             ### Create dfs for scatter plots
-            fc_scatter_df = scatter_df.loc[scatter_df[country_region] == focus_country, :]
+            fc_scatter_df = fc_scatter_df.loc[fc_scatter_df[country_region] == focus_country, :]
             fc_scatter_debt_adjusted_df = (
-                scatter_debt_adjusted_df
-                .loc[scatter_debt_adjusted_df[country_region] == focus_country, :]
+                fc_scatter_debt_adjusted_df
+                .loc[fc_scatter_debt_adjusted_df[country_region] == focus_country, :]
             )
 
             ### Generate line plots and draw
@@ -642,7 +654,7 @@ class SpendingVsGrowthAnimatedScene(Scene):
             self.wait()
 
 
-        """ ### Add all country lines to left plots
+        '''### Add all country lines to left plots
         ### Find countries within graph limits
         all_countries = np.union1d(scatter_df["Country"].unique(), line_graphs_df["Country"].unique())
 
@@ -814,7 +826,7 @@ class SpendingVsGrowthAnimatedScene(Scene):
         self.play(
             Unwrite(lower_projecting_line, run_time=1.0),
             Unwrite(upper_projecting_line, run_time=1.0),
-            ) """
+            )'''
 
         
 
@@ -886,7 +898,7 @@ class SpendingVsGrowthAnimatedScene(Scene):
         
         
 if __name__ == "__main__":
-    """ df = get_avg_spend_change_gdp_df()
-    filtered_df = df.loc[df["Country"] == "United Kingdom", :].reset_index(drop=True)
-    print(filtered_df) """
+    """
+    Check here
+    """
     pass
