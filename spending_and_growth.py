@@ -12,13 +12,13 @@ np.random.seed(37)
 
 cwd = os.getcwd()
 colour_map = {
-    "Asia": PURE_RED,
-    "Americas": PINK,
-    "Africa": YELLOW,
-    "Europe": PURE_GREEN,
-    "Oceania": PURE_BLUE,
-    "Western Europe": PURE_GREEN,
-    "Major Economies": TEAL,
+    "Asia": RED_C,
+    "Americas": LIGHT_PINK,
+    "Africa": YELLOW_C,
+    "Europe": GREEN_C,
+    "Oceania": BLUE_C,
+    "Western Europe": GREEN_C,
+    "Major Economies": TEAL_C,
 }
 
 #################
@@ -107,7 +107,9 @@ def make_axes(
             "scaling": LogBase(custom_labels=True),
         }
     else:
-        y_axis_config = {"numbers_to_include": y_numbers_to_include}
+        y_axis_config = {
+            "numbers_to_include": y_numbers_to_include,
+        }
     ax = Axes(
         x_range=x_range,
         y_range=y_range,
@@ -199,10 +201,6 @@ class SpendingVsGrowthAnimatedScene(Scene):
         uk_scatter_debt_adjusted_df = scatter_debt_adjusted_df.loc[
             scatter_debt_adjusted_df["Country"] == demo_country, :
         ]
-        """ rgn_avg_scatter_df = get_rgn_avg_spend_rgn_avg_change_gdp_df()
-        rgn_avg_debt_adjusted_scatter_df = (
-            get_rgn_avg_spend_rgn_avg_change_gdp_debt_adjusted_df()
-        ) """
         ### Calculate scatter data for Western Europe and Major Economies
         rgn_avg_scatter_df = get_scatter_df(line_graphs_df, long_range=[1850, 2019], sub_period=5)
         rgn_avg_debt_adjusted_scatter_df = get_scatter_df(line_graphs_debt_adjusted_df, long_range=[1850, 2019], sub_period=5)
@@ -214,9 +212,9 @@ class SpendingVsGrowthAnimatedScene(Scene):
         ### Generate axes and labels for gdp and spend
         gdp_ax, gdp_x_label, gdp_y_label = self.generate_axes(
             x_range=[1850, 2021, 10],
-            y_range=[2, 5.1, 1],
+            y_range=[3, 5, 1],
             x_numbers_to_include=list(range(1860, 2021, 20)),
-            y_numbers_to_include=list(range(2, 6, 1)),
+            y_numbers_to_include=list(range(3, 6, 1)),
             log_y=True,
             animate_axes=False,
             x_axis_label="Year",
@@ -288,9 +286,9 @@ class SpendingVsGrowthAnimatedScene(Scene):
         ### Draw composite axes to right
         comp_ax, comp_x_label, comp_y_label = self.generate_axes(
             x_range=[0, 81, 10],
-            y_range=[-21, 21, 5],
+            y_range=[-16, 16, 5],
             x_numbers_to_include=list(range(0, 81, 10)),
-            y_numbers_to_include=list(range(-20, 21, 5)),
+            y_numbers_to_include=list(range(-15, 16, 5)),
             log_y=False,
             animate_axes=True,
             x_axis_label="Average Government Expenditure (%)",
@@ -312,14 +310,14 @@ class SpendingVsGrowthAnimatedScene(Scene):
         lower_projecting_line = always_redraw(
             lambda: DashedLine(
                 color=YELLOW,
-                end=gdp_ax.c2p(lower_vt.get_value(), 10e4),
+                end=gdp_ax.c2p(lower_vt.get_value(), 100e3),
                 start=spend_ax.c2p(lower_vt.get_value(), 0),
             )
         )
         upper_projecting_line = always_redraw(
             lambda: DashedLine(
                 color=YELLOW,
-                end=gdp_ax.c2p(upper_vt.get_value(), 10e4),
+                end=gdp_ax.c2p(upper_vt.get_value(), 100e3),
                 start=spend_ax.c2p(upper_vt.get_value(), 0),
             )
         )
