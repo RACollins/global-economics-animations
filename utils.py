@@ -101,7 +101,9 @@ def make_region_avg_df(spending_df, weight_pop):
     return region_avg_spending_df
 
 
-def create_country_group(df, countries, new_country_name, new_region_name, weight_pop=True):
+def create_country_group(
+    df, countries, new_country_name, new_region_name, weight_pop=True
+):
     # Filter the dataframe to include only the specified countries
     filtered_df = df[df["Country"].isin(countries)]
 
@@ -156,3 +158,48 @@ def create_country_group(df, countries, new_country_name, new_region_name, weigh
     result_df = pd.concat([df, means], ignore_index=True)
 
     return result_df
+
+
+def calculate_generation_group_averages(scatter_df, generation_groups, filter_country=None):
+    # Create a copy of the dataframe to avoid modifying the original
+    df = scatter_df.copy()
+
+    # Create a new column "Generation" based on the start_year
+    df["Generation"] = pd.cut(
+        df["start_year"],
+        bins=[group[0] for group in generation_groups.values()]
+        + [2020],  # Add upper bound
+        labels=generation_groups.keys(),
+        right=False,
+    )
+
+    # Group by "Country" and "Generation", and calculate the mean
+    grouped = (
+        df.groupby(["Country", "Generation"])
+        .agg(
+            {
+                "Average Government Expenditure as % of GDP": "mean",
+                "Average percentage change in GDP per capita USD": "mean",
+            }
+        )
+        .reset_index()
+    )
+
+    # Rename columns for clarity
+    grouped.columns = [
+        "Country",
+        "Generation",
+        "Average Government Expenditure as % of GDP",
+        "Average percentage change in GDP per capita USD",
+    ]
+
+    # Filter to only include the focus country if filter_country is specified
+    if filter_country:
+        df = df.loc[df["Country"] == filter_country, :]
+        grouped = grouped.loc[grouped["Country"] == filter_country, :]
+
+    # Add start_year and end_year columns to the grouped dataframe
+    grouped["start_year"] = grouped["Generation"].map({k: v[0] for k, v in generation_groups.items()})
+    grouped["end_year"] = grouped["Generation"].map({k: v[1] if len(v) > 1 else 2019 for k, v in generation_groups.items()})
+    
+    return df, grouped

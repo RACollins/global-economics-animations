@@ -2,7 +2,7 @@ from manim import *
 import pandas as pd
 import os
 import numpy as np
-from utils import transform_spending_df, get_scatter_df, make_region_avg_df, create_country_group
+from utils import get_scatter_df, create_country_group, calculate_generation_group_averages
 
 np.random.seed(37)
 
@@ -19,6 +19,13 @@ colour_map = {
     "Oceania": BLUE_C,
     "Western Europe": GREEN_C,
     "Major Economies": TEAL_C,
+}
+
+generation_groups = {
+    "Pre-1900s": [1850, 1899],
+    "The World Wars": [1900, 1949],
+    "Post-Wars": [1950, 1999],
+    "2000s": [2000, 2019],
 }
 
 #################
@@ -205,7 +212,6 @@ class SpendingVsGrowthAnimatedScene(Scene):
         rgn_avg_scatter_df = get_scatter_df(line_graphs_df, long_range=[1850, 2019], sub_period=5)
         rgn_avg_debt_adjusted_scatter_df = get_scatter_df(line_graphs_debt_adjusted_df, long_range=[1850, 2019], sub_period=5)
         
-
         ### Colour mapping dict
         country_to_colour_map = make_country_to_colour_map(scatter_df)
 
@@ -452,7 +458,7 @@ class SpendingVsGrowthAnimatedScene(Scene):
         self.wait()
 
         ### Do the same animation for selected countries
-        for focus_country in focus_countries:
+        for fc, focus_country in enumerate(focus_countries):
             if focus_country in ["Western Europe", "Major Economies"]:
                 fc_scatter_df = rgn_avg_scatter_df.copy()
                 fc_scatter_debt_adjusted_df = rgn_avg_debt_adjusted_scatter_df.copy()
@@ -641,14 +647,62 @@ class SpendingVsGrowthAnimatedScene(Scene):
             )
             self.wait(2)
 
-            ### Remove Focus Country's lines and dots
-            self.play(
-                Unwrite(spend_line_graph),
-                Unwrite(gdp_line_graph),
-                *[Unwrite(d) for d in demo_dots_list],
+            ### Remove Focus Country's lines and dots if not final country
+            if fc != len(focus_countries) - 1:
+                self.play(
+                    Unwrite(spend_line_graph),
+                    Unwrite(gdp_line_graph),
+                    *[Unwrite(d) for d in demo_dots_list],
+                    run_time=1,
+                )
+                self.wait()
+
+        ### Group scatter dots corresponding to generation_groups
+        fc_scatter_debt_adjusted_df, scatter_generation_grouped_df = calculate_generation_group_averages(
+            fc_scatter_debt_adjusted_df,
+            generation_groups,
+            filter_country=focus_country
+        )
+
+        ### Transform current sctter plot to generation-grouped scatter plot
+        ### First, generate grouped dots
+        generation_grouped_dots = {}
+        for generation, year_bounds in generation_groups.items():
+            generation_scatter_df = scatter_generation_grouped_df.loc[
+                scatter_generation_grouped_df["Generation"] == generation, :
+            ]
+            generation_grouped_dots[generation] = Dot(
+                comp_ax.coords_to_point(
+                    *self.years_to_coords(
+                        generation_scatter_df,
+                        year_bounds[0],
+                        year_bounds[1],
+                    )
+                ),
+                color=cmap[focus_country],
+                radius=0.05,
+                fill_opacity=0.3,
+            )
+
+        ### Animate the transformations
+        years_completed = 0
+        for nGen, (generation, dot) in enumerate(generation_grouped_dots.items()):
+            years_in_generation = generation_groups[generation][1] - generation_groups[generation][0]
+            print("years_in_generation: ", years_in_generation)
+            print("years_completed:years_completed+years_in_generation: {}".format(years_completed, years_completed+years_in_generation))
+            sliced_demo_dots = demo_dots_list_debt_adjusted[years_completed:years_completed+years_in_generation]
+            """ self.play(
+                *[
+                    Transform(sliced_demo_dots[i], dot)
+                    for i in range(years_in_generation)
+                ],
                 run_time=1,
             )
-            self.wait()
+            self.wait(2) """
+            years_completed += years_in_generation
+            print("years_completed: ", years_completed)
+
+
 
         """### Add all country lines to left plots
         ### Find countries within graph limits
@@ -896,11 +950,14 @@ class SpendingVsGrowthAnimatedScene(Scene):
 if __name__ == "__main__":
     """ df = get_spend_gdp_df()
     countries = ["United Kingdom", "United States", "Japan", "Germany", "France", "Italy", "Spain", "Netherlands", "Belgium"]
-    new_country_name = "The West"
-    new_region_name = "The West"
-    new_df = create_country_group(df, countries, new_country_name, new_region_name, pop_weight=True)
+    new_country_name = "Major Economies"
+    new_region_name = "World"
+    new_df = create_country_group(df, countries, new_country_name, new_region_name, weight_pop=True)
     print(new_df.loc[new_df["Country"] == new_country_name, :])
     scatter_df = get_scatter_df(new_df, long_range=[1850, 2019], sub_period=5)
-    print(scatter_df.loc[scatter_df["Country"] == new_country_name, :]) """
+    print(scatter_df.loc[scatter_df["Country"] == new_country_name, :])
+    scatter_df, grouped = calculate_generation_group_averages(scatter_df, generation_groups)
+    print(scatter_df.loc[scatter_df["Country"] == new_country_name, :])
+    print(grouped.loc[grouped["Country"] == new_country_name, :]) """
     pass
 
