@@ -160,46 +160,30 @@ def create_country_group(
     return result_df
 
 
-def calculate_generation_group_averages(scatter_df, generation_groups, filter_country=None):
-    # Create a copy of the dataframe to avoid modifying the original
-    df = scatter_df.copy()
+def add_binned_columns(scatter_df, bin_groups):
+    binned_data = []
+    for (country, region), country_data in scatter_df.groupby(["Country", "Region"]):
+        country_data["av_gov_exp_mp"] = np.nan
+        country_data["av_gdp_change_mp"] = np.nan
+        for mid_point, [lower, upper] in bin_groups.items():
+            country_data["av_gov_exp_mp"] = np.where(
+                country_data["Average Government Expenditure as % of GDP"].between(
+                    lower, upper, inclusive="left"
+                ),
+                mid_point,
+                country_data["av_gov_exp_mp"],
+            )
+            country_data["av_gdp_change_mp"] = np.where(
+                country_data["av_gov_exp_mp"] == mid_point,
+                country_data.loc[
+                    country_data["av_gov_exp_mp"] == mid_point,
+                    "Average percentage change in GDP per capita USD",
+                ].mean(),
+                country_data["av_gdp_change_mp"],
+            )
 
-    # Create a new column "Generation" based on the start_year
-    df["Generation"] = pd.cut(
-        df["start_year"],
-        bins=[group[0] for group in generation_groups.values()]
-        + [2020],  # Add upper bound
-        labels=generation_groups.keys(),
-        right=False,
-    )
+        binned_data.append(country_data)
 
-    # Group by "Country" and "Generation", and calculate the mean
-    grouped = (
-        df.groupby(["Country", "Generation"])
-        .agg(
-            {
-                "Average Government Expenditure as % of GDP": "mean",
-                "Average percentage change in GDP per capita USD": "mean",
-            }
-        )
-        .reset_index()
-    )
-
-    # Rename columns for clarity
-    grouped.columns = [
-        "Country",
-        "Generation",
-        "Average Government Expenditure as % of GDP",
-        "Average percentage change in GDP per capita USD",
-    ]
-
-    # Filter to only include the focus country if filter_country is specified
-    if filter_country:
-        df = df.loc[df["Country"] == filter_country, :]
-        grouped = grouped.loc[grouped["Country"] == filter_country, :]
-
-    # Add start_year and end_year columns to the grouped dataframe
-    grouped["start_year"] = grouped["Generation"].map({k: v[0] for k, v in generation_groups.items()})
-    grouped["end_year"] = grouped["Generation"].map({k: v[1] if len(v) > 1 else 2019 for k, v in generation_groups.items()})
-    
-    return df, grouped
+    # Create the binned dataframe using pd.DataFrame constructor
+    binned_df = pd.concat(binned_data)
+    return binned_df
