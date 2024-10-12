@@ -107,6 +107,12 @@ def create_country_group(
     # Filter the dataframe to include only the specified countries
     filtered_df = df[df["Country"].isin(countries)]
 
+    # Find the overlapping years
+    overlapping_years = set.intersection(*[set(filtered_df[filtered_df["Country"] == country]["Year"]) for country in countries])
+    
+    # Filter the dataframe to include only the overlapping years
+    filtered_df = filtered_df[filtered_df["Year"].isin(overlapping_years)]
+
     # Group by Year
     grouped = filtered_df.groupby("Year")
 
@@ -142,9 +148,7 @@ def create_country_group(
 
     # Add new country information
     means["Country"] = new_country_name
-    means["Region"] = (
-        new_region_name  # You might want to adjust this based on your needs
-    )
+    means["Region"] = new_region_name
 
     # Ensure the new dataframe has the same columns as the original
     for col in df.columns:

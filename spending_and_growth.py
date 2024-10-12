@@ -12,22 +12,32 @@ np.random.seed(37)
 
 cwd = os.getcwd()
 colour_map = {
-    "Asia": RED_C,
-    "Americas": LIGHT_PINK,
-    "Africa": YELLOW_C,
-    "Europe": GREEN_C,
-    "Oceania": BLUE_C,
-    "Western Europe": GREEN_C,
-    "Major Economies": TEAL_C,
-    "G7": TEAL_C,
+    "Asia": XKCD.RED,
+    "Americas": XKCD.PINK,
+    "Africa": XKCD.YELLOW,
+    "Europe": XKCD.GREEN,
+    "Oceania": XKCD.BLUE,
+    "G7": XKCD.AMBER,
+    "World": XKCD.AMBER,
 }
 
+### Between 10s
 bin_groups = {
     5.0: [0.0, 10.0],
     15.0: [10.0, 20.0],
     25.0: [20.0, 30.0],
     35.0: [30.0, 40.0],
     45.0: [40.0, 50.0],
+}
+
+### On 10s
+bin_groups = {
+    0.0: [0.0, 5.0],
+    10.0: [5.0, 15.0],
+    20.0: [15.0, 25.0],
+    30.0: [25.0, 35.0],
+    40.0: [35.0, 45.0],
+    50.0: [45.0, 50.0],
 }
 
 #################
@@ -315,14 +325,14 @@ class SpendingVsGrowthAnimatedScene(Scene):
         ### Create the line that connects the both graphs
         lower_projecting_line = always_redraw(
             lambda: DashedLine(
-                color=YELLOW,
+                color=XKCD.YELLOW,
                 end=gdp_ax.c2p(lower_vt.get_value(), 100e3),
                 start=spend_ax.c2p(lower_vt.get_value(), 0),
             )
         )
         upper_projecting_line = always_redraw(
             lambda: DashedLine(
-                color=YELLOW,
+                color=XKCD.YELLOW,
                 end=gdp_ax.c2p(upper_vt.get_value(), 100e3),
                 start=spend_ax.c2p(upper_vt.get_value(), 0),
             )
@@ -515,23 +525,23 @@ class SpendingVsGrowthAnimatedScene(Scene):
             ### Unwrite the text
             self.play(Unwrite(fc_text, run_time=1.0))
 
-            ### Declare ValueTrackers and start it at 1880 for Japan and 1850 for others
-            initial_start_year = 1880 if focus_country == "Japan" else 1850
-            initial_end_year = 1885 if focus_country == "Japan" else 1855
+            ### Declare ValueTrackers and start it at 1880 for Japan, G7 and 1850 for others
+            initial_start_year = 1880 if focus_country in ["Japan", "G7"] else 1850
+            initial_end_year = 1885 if focus_country in ["Japan", "G7"] else 1855
             lower_vt = ValueTracker(initial_start_year)
             upper_vt = ValueTracker(initial_end_year)
 
             ### Create the line that connects the both graphs
             lower_projecting_line = always_redraw(
                 lambda: DashedLine(
-                    color=YELLOW,
+                    color=XKCD.YELLOW,
                     end=gdp_ax.c2p(lower_vt.get_value(), 10e4),
                     start=spend_ax.c2p(lower_vt.get_value(), 0),
                 )
             )
             upper_projecting_line = always_redraw(
                 lambda: DashedLine(
-                    color=YELLOW,
+                    color=XKCD.YELLOW,
                     end=gdp_ax.c2p(upper_vt.get_value(), 10e4),
                     start=spend_ax.c2p(upper_vt.get_value(), 0),
                 )
@@ -611,24 +621,32 @@ class SpendingVsGrowthAnimatedScene(Scene):
         ### Add binned data to scatter df
         fc_scatter_debt_adjusted_df = add_binned_columns(fc_scatter_debt_adjusted_df, bin_groups)
 
-        ### Transform current sctter plot to bin-grouped scatter plot
+        ### Transform current scatter plot to bin-grouped scatter plot
         ### First, generate binned dots
         binned_dots_list = []
-        for lower_bound in list(range(1850, 2015)):
+        seen_coords = []
+        for lower_bound in list(range(initial_start_year, 2015)):
             upper_bound = lower_bound + 5
+            coords = self.years_to_coords(
+                fc_scatter_debt_adjusted_df,
+                lower_bound,
+                upper_bound,
+                binned_data_flag=True,
+            )
+            coords_tuple = tuple(coords)  # Convert numpy array to tuple
+            if coords_tuple not in seen_coords:
+                seen_coords.append(coords_tuple)
+                fill_opacity = 0.6
+            else:
+                fill_opacity = 0.0
             binned_dots_list.append(
                 Dot(
                     comp_ax.coords_to_point(
-                        *self.years_to_coords(
-                            fc_scatter_debt_adjusted_df,
-                            lower_bound,
-                            upper_bound,
-                            binned_data_flag=True,
-                        )
+                        *coords
                     ),
-                    color=country_to_colour_map[demo_country],
+                    color=colour_map[focus_country],
                     radius=0.05,
-                    fill_opacity=0.1,
+                    fill_opacity=fill_opacity,
                 )
             )
 
