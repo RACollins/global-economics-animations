@@ -16,11 +16,11 @@ def transform_spending_df(df, spending_range, growth_range):
                 df["Year"].isin(list(range(spending_range[0], spending_range[1] + 1))),
                 :,
             ]
-            .groupby(["Country"])["Government Expenditure (IMF & Wiki)"]
+            .groupby(["Country"])["Government Expenditure (IMF, Wiki, Statistica)"]
             .mean()
         )
         .reset_index()
-        .rename(columns={"Government Expenditure (IMF & Wiki)": spend_col})
+        .rename(columns={"Government Expenditure (IMF, Wiki, Statistica)": spend_col})
     )
 
     df = pd.merge(
@@ -77,8 +77,8 @@ def make_region_avg_df(spending_df, weight_pop):
                 **{
                     "Population": ("Population", "sum"),
                     "GDP per capita (OWiD)": ("GDP per capita (OWiD)", wm),
-                    "Government Expenditure (IMF & Wiki)": (
-                        "Government Expenditure (IMF & Wiki)",
+                    "Government Expenditure (IMF, Wiki, Statistica)": (
+                        "Government Expenditure (IMF, Wiki, Statistica)",
                         wm,
                     ),
                 }
@@ -92,7 +92,7 @@ def make_region_avg_df(spending_df, weight_pop):
                 {
                     "Population": "sum",
                     "GDP per capita (OWiD)": "mean",
-                    "Government Expenditure (IMF & Wiki)": "mean",
+                    "Government Expenditure (IMF, Wiki, Statistica)": "mean",
                 }
             )
             .reset_index()
@@ -108,8 +108,13 @@ def create_country_group(
     filtered_df = df[df["Country"].isin(countries)]
 
     # Find the overlapping years
-    overlapping_years = set.intersection(*[set(filtered_df[filtered_df["Country"] == country]["Year"]) for country in countries])
-    
+    overlapping_years = set.intersection(
+        *[
+            set(filtered_df[filtered_df["Country"] == country]["Year"])
+            for country in countries
+        ]
+    )
+
     # Filter the dataframe to include only the overlapping years
     filtered_df = filtered_df[filtered_df["Year"].isin(overlapping_years)]
 
@@ -125,8 +130,8 @@ def create_country_group(
                     "GDP per capita (OWiD)": np.average(
                         x["GDP per capita (OWiD)"], weights=x["Population"]
                     ),
-                    "Government Expenditure (IMF & Wiki)": np.average(
-                        x["Government Expenditure (IMF & Wiki)"],
+                    "Government Expenditure (IMF, Wiki, Statistica)": np.average(
+                        x["Government Expenditure (IMF, Wiki, Statistica)"],
                         weights=x["Population"],
                     ),
                     "Population": x["Population"].sum(),
@@ -138,7 +143,7 @@ def create_country_group(
         means = grouped.agg(
             {
                 "GDP per capita (OWiD)": "mean",
-                "Government Expenditure (IMF & Wiki)": "mean",
+                "Government Expenditure (IMF, Wiki, Statistica)": "mean",
                 "Population": "sum",
             }
         )

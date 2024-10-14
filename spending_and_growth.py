@@ -31,14 +31,14 @@ bin_groups = {
 }
 
 ### On 10s
-bin_groups = {
+""" bin_groups = {
     0.0: [0.0, 5.0],
     10.0: [5.0, 15.0],
     20.0: [15.0, 25.0],
     30.0: [25.0, 35.0],
     40.0: [35.0, 45.0],
     50.0: [45.0, 50.0],
-}
+} """
 
 #################
 ### Functions ###
@@ -219,17 +219,17 @@ class SpendingVsGrowthAnimatedScene(Scene):
             scatter_debt_adjusted_df["Country"] == demo_country, :
         ]
         ### Calculate scatter data for G7
-        rgn_avg_scatter_df = get_scatter_df(line_graphs_df, long_range=[1850, 2019], sub_period=5)
-        rgn_avg_debt_adjusted_scatter_df = get_scatter_df(line_graphs_debt_adjusted_df, long_range=[1850, 2019], sub_period=5)
+        rgn_avg_scatter_df = get_scatter_df(line_graphs_df, long_range=[1850, 2022], sub_period=5)
+        rgn_avg_debt_adjusted_scatter_df = get_scatter_df(line_graphs_debt_adjusted_df, long_range=[1850, 2022], sub_period=5)
         
         ### Colour mapping dict
         country_to_colour_map = make_country_to_colour_map(scatter_df)
 
         ### Generate axes and labels for gdp and spend
         gdp_ax, gdp_x_label, gdp_y_label = self.generate_axes(
-            x_range=[1850, 2021, 10],
+            x_range=[1850, 2023, 10],
             y_range=[3, 5, 1],
-            x_numbers_to_include=list(range(1860, 2021, 20)),
+            x_numbers_to_include=list(range(1860, 2023, 20)),
             y_numbers_to_include=list(range(3, 6, 1)),
             log_y=True,
             animate_axes=False,
@@ -240,9 +240,9 @@ class SpendingVsGrowthAnimatedScene(Scene):
             y_length=6,
         )
         spend_ax, spend_x_label, spend_y_label = self.generate_axes(
-            x_range=[1850, 2021, 10],
+            x_range=[1850, 2023, 10],
             y_range=[0, 101, 10],
-            x_numbers_to_include=list(range(1860, 2021, 20)),
+            x_numbers_to_include=list(range(1860, 2023, 20)),
             y_numbers_to_include=list(range(0, 100, 20)),
             log_y=False,
             animate_axes=False,
@@ -271,7 +271,7 @@ class SpendingVsGrowthAnimatedScene(Scene):
         )
         spend_line_graph = spend_ax.plot_line_graph(
             x_values=uk_line_graphs_df["Year"],
-            y_values=uk_line_graphs_df["Government Expenditure (IMF & Wiki)"],
+            y_values=uk_line_graphs_df["Government Expenditure (IMF, Wiki, Statistica)"],
             line_color=country_to_colour_map[demo_country],
             add_vertex_dots=False,
             stroke_width=2,
@@ -365,24 +365,24 @@ class SpendingVsGrowthAnimatedScene(Scene):
         self.play(
             lower_vt.animate.set_value(1979),
             upper_vt.animate.set_value(1984),
-            run_time=2.5,
+            run_time=1.75,
         )
         self.wait(1)
         self.play(
             lower_vt.animate.set_value(1916),
             upper_vt.animate.set_value(1921),
-            run_time=3.5,
+            run_time=2.75,
         )
         self.wait(1)
         self.play(
             lower_vt.animate.set_value(1850),
             upper_vt.animate.set_value(1855),
-            run_time=2.5,
+            run_time=1.75,
         )
 
         ### Generate list of dots and add to scene while value tracker changes
         demo_dots_list = []
-        for lower_bound in list(range(1850, 2015)):
+        for lower_bound in list(range(1850, 2018)):
             upper_bound = lower_bound + 5
             demo_dots_list.append(
                 Dot(
@@ -399,8 +399,8 @@ class SpendingVsGrowthAnimatedScene(Scene):
                 )
             )
         self.play(
-            lower_vt.animate.set_value(2014),
-            upper_vt.animate.set_value(2019),
+            lower_vt.animate.set_value(2017),
+            upper_vt.animate.set_value(2022),
             LaggedStart(
                 *[Create(d) for d in demo_dots_list],
                 lag_ratio=5.0,
@@ -430,7 +430,7 @@ class SpendingVsGrowthAnimatedScene(Scene):
 
         ### Then, generate new dot data
         demo_dots_list_debt_adjusted = []
-        for lower_bound in list(range(1850, 2015)):
+        for lower_bound in list(range(1850, 2018)):
             upper_bound = lower_bound + 5
             demo_dots_list_debt_adjusted.append(
                 Dot(
@@ -469,6 +469,7 @@ class SpendingVsGrowthAnimatedScene(Scene):
 
         ### Do the same animation for selected countries
         for fc, focus_country in enumerate(focus_countries):
+            print("Focus country: ", focus_country)
             if focus_country in ["G7"]:
                 fc_scatter_debt_adjusted_df = rgn_avg_debt_adjusted_scatter_df.copy()
                 cmap = colour_map
@@ -498,7 +499,7 @@ class SpendingVsGrowthAnimatedScene(Scene):
             )
             spend_line_graph = spend_ax.plot_line_graph(
                 x_values=fc_line_graphs_debt_adjusted_df["Year"],
-                y_values=fc_line_graphs_debt_adjusted_df["Government Expenditure (IMF & Wiki)"],
+                y_values=fc_line_graphs_debt_adjusted_df["Government Expenditure (IMF, Wiki, Statistica)"],
                 line_color=cmap[focus_country],
                 add_vertex_dots=False,
                 stroke_width=2,
@@ -572,7 +573,7 @@ class SpendingVsGrowthAnimatedScene(Scene):
 
             ### Generate list of dots and add to scene while value tracker changes
             demo_dots_list = []
-            for lower_bound in list(range(initial_start_year, 2015)):
+            for lower_bound in list(range(initial_start_year, 2018)):
                 upper_bound = lower_bound + 5
                 demo_dots_list.append(
                     Dot(
@@ -589,14 +590,14 @@ class SpendingVsGrowthAnimatedScene(Scene):
                     )
                 )
             self.play(
-                lower_vt.animate.set_value(2014),
-                upper_vt.animate.set_value(2019),
+                lower_vt.animate.set_value(2017),
+                upper_vt.animate.set_value(2022),
                 LaggedStart(
                     *[Create(d) for d in demo_dots_list],
                     lag_ratio=5.0,
                     rate_func=rate_functions.linear,
                 ),
-                run_time=15.0,
+                run_time=15.5,
                 rate_func=rate_functions.linear,
             )
 
@@ -620,12 +621,14 @@ class SpendingVsGrowthAnimatedScene(Scene):
 
         ### Add binned data to scatter df
         fc_scatter_debt_adjusted_df = add_binned_columns(fc_scatter_debt_adjusted_df, bin_groups)
+        ### Recalculate binned data with war years removed
+        war_years = [(y, y+5) for y in range(1909, 1918)] + [(y, y+5) for y in range(1934, 1945)]
 
         ### Transform current scatter plot to bin-grouped scatter plot
         ### First, generate binned dots
         binned_dots_list = []
         seen_coords = []
-        for lower_bound in list(range(initial_start_year, 2015)):
+        for lower_bound in list(range(initial_start_year, 2018)):
             upper_bound = lower_bound + 5
             coords = self.years_to_coords(
                 fc_scatter_debt_adjusted_df,
@@ -661,9 +664,14 @@ class SpendingVsGrowthAnimatedScene(Scene):
         self.wait(2)
 
 
+
     def years_to_coords(
         self, df: pd.DataFrame, start_year: int, end_year: int, binned_data_flag: bool = False
     ) -> list[float, float]:
+        if abs(end_year - start_year) != 5:
+            end_year = start_year + 5
+        # print("Start year: ", start_year)
+        # print("End year: ", end_year)
         if binned_data_flag:
             col_names = ["av_gov_exp_mp", "av_gdp_change_mp"]
         else:
