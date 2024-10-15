@@ -169,11 +169,16 @@ def create_country_group(
     return result_df
 
 
-def add_binned_columns(scatter_df, bin_groups):
+def add_binned_columns(scatter_df, bin_groups, filter_start_years=None):
     binned_data = []
     for (country, region), country_data in scatter_df.groupby(["Country", "Region"]):
+        if filter_start_years:
+            gdp_col = "av_gdp_change_mp_filtered"
+        else:
+            gdp_col = "av_gdp_change_mp"
+
         country_data["av_gov_exp_mp"] = np.nan
-        country_data["av_gdp_change_mp"] = np.nan
+        country_data[gdp_col] = np.nan
         for mid_point, [lower, upper] in bin_groups.items():
             country_data["av_gov_exp_mp"] = np.where(
                 country_data["Average Government Expenditure as % of GDP"].between(
@@ -182,13 +187,21 @@ def add_binned_columns(scatter_df, bin_groups):
                 mid_point,
                 country_data["av_gov_exp_mp"],
             )
-            country_data["av_gdp_change_mp"] = np.where(
+
+            if filter_start_years:
+                filter_cond = (country_data["av_gov_exp_mp"] == mid_point) & (
+                    ~country_data["start_year"].isin(filter_start_years)
+                )
+            else:
+                filter_cond = country_data["av_gov_exp_mp"] == mid_point
+
+            country_data[gdp_col] = np.where(
                 country_data["av_gov_exp_mp"] == mid_point,
                 country_data.loc[
-                    country_data["av_gov_exp_mp"] == mid_point,
+                    filter_cond,
                     "Average percentage change in GDP per capita USD",
                 ].mean(),
-                country_data["av_gdp_change_mp"],
+                country_data[gdp_col],
             )
 
         binned_data.append(country_data)

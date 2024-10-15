@@ -22,23 +22,23 @@ colour_map = {
 }
 
 ### Between 10s
-bin_groups = {
+""" bin_groups = {
     5.0: [0.0, 10.0],
     15.0: [10.0, 20.0],
     25.0: [20.0, 30.0],
     35.0: [30.0, 40.0],
     45.0: [40.0, 50.0],
-}
+} """
 
 ### On 10s
-""" bin_groups = {
+bin_groups = {
     0.0: [0.0, 5.0],
     10.0: [5.0, 15.0],
     20.0: [15.0, 25.0],
     30.0: [25.0, 35.0],
     40.0: [35.0, 45.0],
     50.0: [45.0, 50.0],
-} """
+}
 
 #################
 ### Functions ###
@@ -469,7 +469,6 @@ class SpendingVsGrowthAnimatedScene(Scene):
 
         ### Do the same animation for selected countries
         for fc, focus_country in enumerate(focus_countries):
-            print("Focus country: ", focus_country)
             if focus_country in ["G7"]:
                 fc_scatter_debt_adjusted_df = rgn_avg_debt_adjusted_scatter_df.copy()
                 cmap = colour_map
@@ -622,58 +621,61 @@ class SpendingVsGrowthAnimatedScene(Scene):
         ### Add binned data to scatter df
         fc_scatter_debt_adjusted_df = add_binned_columns(fc_scatter_debt_adjusted_df, bin_groups)
         ### Recalculate binned data with war years removed
-        war_years = [(y, y+5) for y in range(1909, 1918)] + [(y, y+5) for y in range(1934, 1945)]
+        war_years = [y for y in range(1909, 1918)] + [y for y in range(1934, 1945)]
+        fc_scatter_debt_adjusted_df = add_binned_columns(fc_scatter_debt_adjusted_df, bin_groups, filter_start_years=war_years)
 
         ### Transform current scatter plot to bin-grouped scatter plot
-        ### First, generate binned dots
-        binned_dots_list = []
-        seen_coords = []
-        for lower_bound in list(range(initial_start_year, 2018)):
-            upper_bound = lower_bound + 5
-            coords = self.years_to_coords(
-                fc_scatter_debt_adjusted_df,
-                lower_bound,
-                upper_bound,
-                binned_data_flag=True,
-            )
-            coords_tuple = tuple(coords)  # Convert numpy array to tuple
-            if coords_tuple not in seen_coords:
-                seen_coords.append(coords_tuple)
-                fill_opacity = 0.6
-            else:
-                fill_opacity = 0.0
-            binned_dots_list.append(
-                Dot(
-                    comp_ax.coords_to_point(
-                        *coords
-                    ),
-                    color=colour_map[focus_country],
-                    radius=0.05,
-                    fill_opacity=fill_opacity,
+        previous_dots_list = demo_dots_list
+        for which_binned_data in ["no_filter", "filter"]:
+            binned_dots_list = []
+            seen_coords = []
+            for lower_bound in list(range(initial_start_year, 2018)):
+                upper_bound = lower_bound + 5
+                coords = self.years_to_coords(
+                    fc_scatter_debt_adjusted_df,
+                    lower_bound,
+                    upper_bound,
+                    which_binned_data=which_binned_data,
                 )
-            )
+                coords_tuple = tuple(coords)  # Convert numpy array to tuple
+                if coords_tuple not in seen_coords:
+                    seen_coords.append(coords_tuple)
+                    fill_opacity = 0.75
+                else:
+                    fill_opacity = 0.0
+                binned_dots_list.append(
+                    Dot(
+                        comp_ax.coords_to_point(
+                            *coords
+                        ),
+                        color=colour_map[focus_country],
+                        radius=0.05,
+                        fill_opacity=fill_opacity,
+                    )
+                )
 
-        ### Finally, animate the transformations
-        self.play(
-            *[
-                Transform(d, binned_dots_list[i])
-                for i, d in enumerate(demo_dots_list)
-            ],
-            run_time=1,
-        )
-        self.wait(2)
+            ### Finally, animate the transformations
+            self.play(
+                *[
+                    ReplacementTransform(d, binned_dots_list[i])
+                    for i, d in enumerate(previous_dots_list)
+                ],
+                run_time=1,
+            )
+            self.wait(2)
+            previous_dots_list = binned_dots_list
 
 
 
     def years_to_coords(
-        self, df: pd.DataFrame, start_year: int, end_year: int, binned_data_flag: bool = False
+        self, df: pd.DataFrame, start_year: int, end_year: int, which_binned_data: str = None
     ) -> list[float, float]:
         if abs(end_year - start_year) != 5:
             end_year = start_year + 5
-        # print("Start year: ", start_year)
-        # print("End year: ", end_year)
-        if binned_data_flag:
+        if which_binned_data == "no_filter":
             col_names = ["av_gov_exp_mp", "av_gdp_change_mp"]
+        elif which_binned_data == "filter":
+            col_names = ["av_gov_exp_mp", "av_gdp_change_mp_filtered"]
         else:
             col_names = ["Average Government Expenditure as % of GDP", "Average percentage change in GDP per capita USD"]
         result = df.loc[
@@ -748,5 +750,24 @@ if __name__ == "__main__":
     scatter_df = get_scatter_df(new_df, long_range=[1850, 2019], sub_period=5)
     scatter_df = add_binned_columns(scatter_df, bin_groups)
     print(scatter_df.loc[scatter_df["Country"] == new_country_name, :])
+    war_years = [y for y in range(1909, 1918)] + [y for y in range(1934, 1945)]
+
+    scatter_df = add_binned_columns(scatter_df, bin_groups, filter_start_years=war_years)
+    print(scatter_df.loc[scatter_df["Country"] == new_country_name, :])
+    print(
+        scatter_df.loc[
+            (scatter_df["Country"] == new_country_name) & 
+            (scatter_df["av_gov_exp_mp"] == 35.0) &
+            (~scatter_df["start_year"].isin(war_years)),
+            [
+                "start_year",
+                "end_year",
+                "Average Government Expenditure as % of GDP",
+                "Average percentage change in GDP per capita USD",
+                "av_gdp_change_mp",
+                "av_gdp_change_mp_filtered",
+            ]
+        ].mean()
+    )
     pass
 
