@@ -12,13 +12,13 @@ np.random.seed(37)
 
 cwd = os.getcwd()
 colour_map = {
-    "Asia": XKCD.RED,
-    "Americas": XKCD.PINK,
-    "Africa": XKCD.YELLOW,
-    "Europe": XKCD.GREEN,
-    "Oceania": XKCD.BLUE,
-    "G7": XKCD.AMBER,
-    "World": XKCD.AMBER,
+    "Asia": XKCD.FADEDRED,
+    "Americas": XKCD.BUBBLEGUM,
+    "Africa": XKCD.AMBER,
+    "Europe": XKCD.ALGAEGREEN,
+    "Oceania": XKCD.RICHBLUE,
+    "G7": XKCD.AZURE,
+    "World": XKCD.AZURE,
 }
 
 ### Between 10s
@@ -509,18 +509,82 @@ class SpendingVsGrowthAnimatedScene(Scene):
             fc_text.move_to(gdp_ax.c2p(2012, 1e5))  # Adjusted to top right of gdp_ax
 
             ### Draw plots and text
-            self.play(
-                Write(
-                    spend_line_graph,
-                    run_time=6.5,
-                    rate_func=rate_functions.ease_in_quad,
-                ),
-                Write(
-                    gdp_line_graph, run_time=6.5, rate_func=rate_functions.ease_in_quad
-                ),
-                Write(fc_text, run_time=1.0),
-            )
-            self.wait()
+            draw_country_lines_randomly = True
+            if focus_country == "G7" and draw_country_lines_randomly:
+                ### Draw all country lines on left plots
+                gdp_lines_dict, spend_lines_dict = {}, {}
+                for country in g7_countries:
+                    if country in excluded_countries:
+                        continue
+                    country_lines_graph_df = (line_graphs_debt_adjusted_df
+                                            .loc[line_graphs_debt_adjusted_df["Country"] == country, :]
+                                            .set_index("Year", drop=False))
+                    
+                    gdp_lines_dict[country] = gdp_ax.plot_line_graph(
+                        x_values=country_lines_graph_df["Year"],
+                        y_values=country_lines_graph_df["GDP per capita (OWiD)"],
+                        line_color=country_to_colour_map[country],
+                        add_vertex_dots=False,
+                        stroke_width=1,
+                    )
+                    spend_lines_dict[country] = spend_ax.plot_line_graph(
+                        x_values=country_lines_graph_df["Year"],
+                        y_values=country_lines_graph_df["Government Expenditure (IMF, Wiki, Statistica)"],
+                        line_color=country_to_colour_map[country],
+                        add_vertex_dots=False,
+                        stroke_width=1,
+                    )
+
+                ### Generate line plots randomly
+                random_line_plots = np.random.choice(
+                    [Write(slg) for k, slg in spend_lines_dict.items()] + [Write(gdplg) for k, gdplg in gdp_lines_dict.items()],
+                    len(g7_countries)*2,  #<-- one for each gdp and spend line
+                    replace=False,
+                )
+
+                ### Plot lines
+                self.play(
+                    LaggedStart(
+                        *random_line_plots,
+                        lag_ratio=0.05,
+                        run_time=2.5,
+                        rate_func=rate_functions.smooth
+                    ),
+                    Write(fc_text, run_time=1.0),
+                )
+                self.wait()
+
+                ### Transform random lines to weighted mean line
+                to_avg_transforms = []
+                for country in g7_countries:
+                    if country in excluded_countries:
+                        continue
+                    to_avg_transforms.append(
+                        Transform(gdp_lines_dict[country], gdp_line_graph)
+                    )
+                    to_avg_transforms.append(
+                        Transform(spend_lines_dict[country], spend_line_graph)
+                    )
+                self.play(
+                    *to_avg_transforms,
+                    run_time=1,
+                )
+                self.wait()
+            else:
+                self.play(
+                    Write(
+                        spend_line_graph,
+                        run_time=2.5,
+                        rate_func=rate_functions.ease_in_quad,
+                    ),
+                    Write(
+                        gdp_line_graph,
+                        run_time=2.5,
+                        rate_func=rate_functions.ease_in_quad
+                    ),
+                    Write(fc_text, run_time=1.0),
+                )
+                self.wait()
 
             ### Unwrite the text
             self.play(Unwrite(fc_text, run_time=1.0))
