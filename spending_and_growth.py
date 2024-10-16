@@ -2,7 +2,7 @@ from manim import *
 import pandas as pd
 import os
 import numpy as np
-from utils import get_scatter_df, create_country_group, add_binned_columns
+from utils import get_scatter_df, create_country_group, add_binned_columns, add_kmeans_clusters
 
 np.random.seed(37)
 
@@ -806,32 +806,15 @@ class SpendingVsGrowthAnimatedScene(Scene):
 
 
 if __name__ == "__main__":
-    df = get_spend_gdp_df()
+    df = get_spend_gdp_debt_adjusted_df()
     countries = ["United Kingdom", "United States", "Japan", "Germany", "France", "Canada", "Italy"]
     new_country_name = "G7"
     new_region_name = "World"
     new_df = create_country_group(df, countries, new_country_name, new_region_name, weight_pop=True)
     scatter_df = get_scatter_df(new_df, long_range=[1850, 2019], sub_period=5)
-    scatter_df = add_binned_columns(scatter_df, bin_groups)
-    print(scatter_df.loc[scatter_df["Country"] == new_country_name, :])
+    print(scatter_df.loc[scatter_df["Country"] == "G7", :].head(15))
     war_years = [y for y in range(1909, 1918)] + [y for y in range(1934, 1945)]
-
-    scatter_df = add_binned_columns(scatter_df, bin_groups, filter_start_years=war_years)
-    print(scatter_df.loc[scatter_df["Country"] == new_country_name, :])
-    print(
-        scatter_df.loc[
-            (scatter_df["Country"] == new_country_name) & 
-            (scatter_df["av_gov_exp_mp"] == 35.0) &
-            (~scatter_df["start_year"].isin(war_years)),
-            [
-                "start_year",
-                "end_year",
-                "Average Government Expenditure as % of GDP",
-                "Average percentage change in GDP per capita USD",
-                "av_gdp_change_mp",
-                "av_gdp_change_mp_filtered",
-            ]
-        ].mean()
-    )
+    cluster_result = add_kmeans_clusters(scatter_df, n_clusters=5, filter_start_years=war_years)
+    print(cluster_result.cluster_centers_)
     pass
 

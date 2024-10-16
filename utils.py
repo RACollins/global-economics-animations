@@ -1,5 +1,7 @@
 import pandas as pd
 import numpy as np
+from sklearn.cluster import KMeans
+from sklearn.preprocessing import StandardScaler
 
 
 def transform_spending_df(df, spending_range, growth_range):
@@ -209,3 +211,24 @@ def add_binned_columns(scatter_df, bin_groups, filter_start_years=None):
     # Create the binned dataframe using pd.DataFrame constructor
     binned_df = pd.concat(binned_data)
     return binned_df
+
+
+def add_kmeans_clusters(scatter_df, n_clusters, filter_start_years=None):
+    def cluster(X, n_clusters):
+        k_means = KMeans(n_clusters=n_clusters)
+        y = k_means.fit_predict(X)
+        return y, k_means
+    
+    for (country, region), country_data in scatter_df.groupby(["Country", "Region"]):
+        if country != "G7":
+            continue
+
+        country_data = country_data.dropna(subset=["Average Government Expenditure as % of GDP", "Average percentage change in GDP per capita USD"])
+        if filter_start_years:
+            country_data = country_data[~country_data["start_year"].isin(filter_start_years)]
+        arr = np.array(country_data.loc[:, ["Average Government Expenditure as % of GDP", "Average percentage change in GDP per capita USD"]])
+        aaa = cluster(arr, n_clusters)
+        aaa_result = aaa[1]
+
+    return aaa_result
+    
