@@ -213,12 +213,13 @@ def add_binned_columns(scatter_df, bin_groups, filter_start_years=None):
     return binned_df
 
 
-def add_kmeans_clusters(scatter_df, n_clusters, filter_start_years=None):
+def add_kmeans_clusters(scatter_df, n_clusters):
     def cluster(X, n_clusters):
-        k_means = KMeans(n_clusters=n_clusters)
+        k_means = KMeans(n_clusters=n_clusters, random_state=37)
         y = k_means.fit_predict(X)
         return y, k_means
 
+    all_country_data = []
     for (country, region), country_data in scatter_df.groupby(["Country", "Region"]):
         if country != "G7":
             continue
@@ -229,10 +230,6 @@ def add_kmeans_clusters(scatter_df, n_clusters, filter_start_years=None):
                 "Average percentage change in GDP per capita USD",
             ]
         )
-        if filter_start_years:
-            country_data = country_data[
-                ~country_data["start_year"].isin(filter_start_years)
-            ]
         arr = np.array(
             country_data.loc[
                 :,
@@ -242,7 +239,12 @@ def add_kmeans_clusters(scatter_df, n_clusters, filter_start_years=None):
                 ],
             ]
         )
-        aaa = cluster(arr, n_clusters)
-        aaa_result = aaa[1]
+        culster_result = cluster(arr, n_clusters)[1]
+        country_data.loc[:, "Cluster"] = culster_result.labels_
+        country_data.loc[:, "centroid_x"] = culster_result.cluster_centers_[culster_result.labels_][:, 0]
+        country_data.loc[:, "centroid_y"] = culster_result.cluster_centers_[culster_result.labels_][:, 1]
+        all_country_data.append(country_data)
 
-    return aaa_result
+    clustered_df = pd.concat(all_country_data)
+
+    return clustered_df
