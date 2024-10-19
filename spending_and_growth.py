@@ -688,19 +688,34 @@ class SpendingVsGrowthAnimatedScene(Scene):
         demo_dots_war_years = [demo_dots_list[war_year_index] for war_year_index in war_year_indices]
         
         ### Draw black rectangles around line graphs for war years
-        gdp_rect = Polygon(
-            *[
-                gdp_ax.c2p(*i)
-                for i in self.get_rectangle_corners((1909, 3e3), (1913, 1e5))
-            ], 
+        rect_list = []
+        gdp_coord_tuples_list = [
+            [(1909, 3e3), (1923, 1e5)],
+            [(1934, 3e3), (1950, 1e5)],
+        ]
+        spend_coord_tuples_list = [
+            [(1909, 3), (1923, 100)],
+            [(1934, 3), (1950, 100)],
+        ]
+        for i, coord_tuples_list in enumerate(gdp_coord_tuples_list + spend_coord_tuples_list):
+            if i<=1:
+                ax = gdp_ax
+            else:
+                ax = spend_ax
+            rect = Polygon(
+                *[
+                ax.c2p(*i)
+                for i in self.get_rectangle_corners(*coord_tuples_list)
+            ],
             color=BLACK,
             fill_color=BLACK,
             fill_opacity=1.0,
-        )
-        
+            )
+            rect_list.append(rect)
+
         ### "Remove" war years from all plots
         self.play(
-            Create(gdp_rect),
+            *[Create(r) for r in rect_list],
             *[Unwrite(d) for d in demo_dots_war_years],
             run_time=1.0,
         )
