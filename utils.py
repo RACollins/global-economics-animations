@@ -8,7 +8,7 @@ def transform_spending_df(df, spending_range, growth_range):
     spend_col = "Average Government Expenditure as % of GDP ({0} - {1})".format(
         spending_range[0], spending_range[1]
     )
-    growth_col = "Average percentage change in GDP per capita USD ({0} - {1})".format(
+    growth_col = "Annualized percentage change in GDP per capita USD ({0} - {1})".format(
         growth_range[0], growth_range[1]
     )
 
@@ -47,7 +47,7 @@ def transform_spending_df(df, spending_range, growth_range):
 
 def get_scatter_df(df, long_range, sub_period):
     x_title_no_brackets = "Average Government Expenditure as % of GDP"
-    y_title_no_brackets = "Average percentage change in GDP per capita USD"
+    y_title_no_brackets = "Annualized percentage change in GDP per capita USD"
     all_subperiod_df_list = []
     nPeriods = long_range[1] - (long_range[0] + sub_period) + 1
     for p in range(nPeriods):
@@ -201,7 +201,7 @@ def add_binned_columns(scatter_df, bin_groups, filter_start_years=None):
                 country_data["av_gov_exp_mp"] == mid_point,
                 country_data.loc[
                     filter_cond,
-                    "Average percentage change in GDP per capita USD",
+                    "Annualized percentage change in GDP per capita USD",
                 ].mean(),
                 country_data[gdp_col],
             )
@@ -227,7 +227,7 @@ def add_kmeans_clusters(scatter_df, n_clusters):
         country_data = country_data.dropna(
             subset=[
                 "Average Government Expenditure as % of GDP",
-                "Average percentage change in GDP per capita USD",
+                "Annualized percentage change in GDP per capita USD",
             ]
         )
         arr = np.array(
@@ -235,7 +235,7 @@ def add_kmeans_clusters(scatter_df, n_clusters):
                 :,
                 [
                     "Average Government Expenditure as % of GDP",
-                    "Average percentage change in GDP per capita USD",
+                    "Annualized percentage change in GDP per capita USD",
                 ],
             ]
         )

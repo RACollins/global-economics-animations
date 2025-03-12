@@ -84,6 +84,18 @@ def get_avg_spend_avg_change_gdp_debt_adjusted_df() -> pd.DataFrame:
     ).drop(columns=["Unnamed: 0"])
     return df
 
+def get_avg_spend_ann_change_gdp_df() -> pd.DataFrame:
+    df = pd.read_csv(cwd + "/data/average_spend_vs_annualized_change_in_gdp.csv").drop(
+        columns=["Unnamed: 0"]
+    )
+    return df
+
+def get_avg_spend_ann_change_gdp_debt_adjusted_df() -> pd.DataFrame:
+    df = pd.read_csv(
+        cwd + "/data/average_spend_vs_annualized_change_in_gdp_debt_adjusted.csv"
+    ).drop(columns=["Unnamed: 0"])
+    return df
+
 def get_rgn_avg_spend_rgn_avg_change_gdp_df() -> pd.DataFrame:
     df = pd.read_csv(
         cwd + "/data/region_average_spend_vs_region_average_change_in_gdp.csv"
@@ -212,9 +224,9 @@ class SpendingVsGrowthAnimatedScene(Scene):
             )
 
         ### Load data for scatter plot
-        scatter_df = get_avg_spend_avg_change_gdp_df()
+        scatter_df = get_avg_spend_ann_change_gdp_df()
         uk_scatter_df = scatter_df.loc[scatter_df["Country"] == demo_country, :]
-        scatter_debt_adjusted_df = get_avg_spend_avg_change_gdp_debt_adjusted_df()
+        scatter_debt_adjusted_df = get_avg_spend_ann_change_gdp_debt_adjusted_df()
         uk_scatter_debt_adjusted_df = scatter_debt_adjusted_df.loc[
             scatter_debt_adjusted_df["Country"] == demo_country, :
         ]
@@ -546,7 +558,7 @@ class SpendingVsGrowthAnimatedScene(Scene):
                 self.play(
                     LaggedStart(
                         *random_line_plots,
-                        lag_ratio=0.05,
+                        lag_ratio=0.0,
                         run_time=2.5,
                         rate_func=rate_functions.smooth
                     ),
@@ -785,7 +797,7 @@ class SpendingVsGrowthAnimatedScene(Scene):
         if which_data == "centroid":
             col_names = ["centroid_x", "centroid_y"]
         else:
-            col_names = ["Average Government Expenditure as % of GDP", "Average percentage change in GDP per capita USD"]
+            col_names = ["Average Government Expenditure as % of GDP", "Annualized percentage change in GDP per capita USD"]
         result = df.loc[
             (df["start_year"] == start_year) & (df["end_year"] == end_year),
             col_names,
