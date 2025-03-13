@@ -8,8 +8,10 @@ def transform_spending_df(df, spending_range, growth_range):
     spend_col = "Average Government Expenditure as % of GDP ({0} - {1})".format(
         spending_range[0], spending_range[1]
     )
-    growth_col = "Annualized percentage change in GDP per capita USD ({0} - {1})".format(
-        growth_range[0], growth_range[1]
+    growth_col = (
+        "Annualized percentage change in GDP per capita USD ({0} - {1})".format(
+            growth_range[0], growth_range[1]
+        )
     )
 
     average_spend_df = (
@@ -241,10 +243,30 @@ def add_kmeans_clusters(scatter_df, n_clusters):
         )
         culster_result = cluster(arr, n_clusters)[1]
         country_data.loc[:, "Cluster"] = culster_result.labels_
-        country_data.loc[:, "centroid_x"] = culster_result.cluster_centers_[culster_result.labels_][:, 0]
-        country_data.loc[:, "centroid_y"] = culster_result.cluster_centers_[culster_result.labels_][:, 1]
+        country_data.loc[:, "centroid_x"] = culster_result.cluster_centers_[
+            culster_result.labels_
+        ][:, 0]
+        country_data.loc[:, "centroid_y"] = culster_result.cluster_centers_[
+            culster_result.labels_
+        ][:, 1]
         all_country_data.append(country_data)
 
     clustered_df = pd.concat(all_country_data)
 
     return clustered_df
+
+
+def add_line_of_best_fit(df, x_col, y_col, degree):
+    coefficients = np.polyfit(df[x_col], df[y_col], degree)
+    polynomial = np.poly1d(coefficients)
+    df["line_of_best_fit"] = polynomial(df[x_col])
+    return df
+
+
+def add_moving_average(df, x_col, y_col, window):
+    df["moving_average"] = df[y_col].rolling(window=window).mean()
+    # First use backward fill to handle NaN values at the beginning
+    df["moving_average"] = (
+        df["moving_average"].fillna(method="bfill").fillna(method="ffill")
+    )
+    return df
