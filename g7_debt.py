@@ -15,7 +15,7 @@ cwd = os.getcwd()
 #################
 
 
-def get_g7_debt_df() -> pd.DataFrame:
+def get_g7_debt_df(start_year: int, end_year: int) -> pd.DataFrame:
     df = pd.read_csv(cwd + "/data/imf_gross_public_debt_20240924_inverted.csv").drop(
         columns=["Unnamed: 0"]
     )
@@ -36,6 +36,8 @@ def get_g7_debt_df() -> pd.DataFrame:
 
     # Group by Year and calculate the average debt across G7 countries
     g7_avg_df = g7_df.groupby("Year")["Public debt (% of GDP)"].mean().reset_index()
+    g7_avg_df = g7_avg_df[g7_avg_df["Year"] >= start_year]
+    g7_avg_df = g7_avg_df[g7_avg_df["Year"] <= end_year]
 
     g7_avg_df = add_line_of_best_fit(g7_avg_df, "Year", "Public debt (% of GDP)", 10)
     g7_avg_df = add_moving_average(g7_avg_df, "Year", "Public debt (% of GDP)", 5)
@@ -92,14 +94,16 @@ def make_axes(
 class G7DebtScene(Scene):
 
     def construct(self):
+        start_year = 1970
+        end_year = 2023
         ### Get data
-        df = get_g7_debt_df()
+        df = get_g7_debt_df(start_year, end_year)
 
         ### Generate axes and labels for gdp and spend
         ax, x_label, y_label = self.generate_axes(
-            x_range=[1850, 2023, 10],
+            x_range=[start_year, end_year, 5],
             y_range=[0, 150, 20],
-            x_numbers_to_include=list(range(1860, 2023, 20)),
+            x_numbers_to_include=list(range(start_year, end_year, 10)),
             y_numbers_to_include=list(range(0, 160, 20)),
             log_y=False,
             animate_axes=True,
@@ -178,6 +182,6 @@ class G7DebtScene(Scene):
 
 
 if __name__ == "__main__":
-    df = get_g7_debt_df()
+    df = get_g7_debt_df(1970, 2023)
     print(df)
     pass
