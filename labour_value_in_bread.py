@@ -16,9 +16,14 @@ cwd = os.getcwd()
 
 
 def get_labour_value_in_bread_df() -> pd.DataFrame:
+    # Read the original data
     df = pd.read_csv(cwd + "/data/labour_value_in_bread.csv")
+    complete_years = pd.DataFrame({"Year": range(1200, 2021)})
+    df = pd.merge(complete_years, df, on="Year", how="left")
+    df["Hr Rate bread (kg)"] = df["Hr Rate bread (kg)"].interpolate(method="quadratic")
+
     df = add_line_of_best_fit(df, "Year", "Hr Rate bread (kg)", 10)
-    df = add_moving_average(df, "Year", "Hr Rate bread (kg)", 5)
+    df = add_moving_average(df, "Year", "Hr Rate bread (kg)", 20)
     return df
 
 
@@ -101,9 +106,7 @@ class LabourValueInBreadScene(Scene):
 
         ### Draw plots
         self.play(
-            Write(
-                line_graph, run_time=6.5, rate_func=rate_functions.ease_in_quad
-            )
+            Write(line_graph, run_time=6.5, rate_func=rate_functions.ease_in_quad)
         )
         self.wait()
 
