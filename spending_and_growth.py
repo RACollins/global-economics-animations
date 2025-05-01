@@ -8,13 +8,14 @@ from utils import (
     add_binned_columns,
     add_kmeans_clusters,
 )
+
 ### Will un comment when switching to WHITE background
-# config.background_color = WHITE
+config.background_color = WHITE
 
 ### Set default color for common objects
-# Line.set_default(color=BLACK)
-# Text.set_default(color=BLACK)
-# Axes.set_default(color=BLACK)
+Line.set_default(color=BLACK)
+Text.set_default(color=BLACK)
+Axes.set_default(color=BLACK)
 
 np.random.seed(37)
 
@@ -178,12 +179,17 @@ def make_axes(
             "decimal_number_config": {
                 "num_decimal_places": 0,
                 "group_with_commas": False,  # <- This removes the comma delimitation
-                "color": WHITE,
+                # "color": WHITE,
             },
         },
-        x_axis_config={"numbers_to_include": x_numbers_to_include},
+        x_axis_config={
+            "numbers_to_include": x_numbers_to_include,
+        },
         y_axis_config=y_axis_config,
     )
+    ax.add_coordinates()
+    ax.coordinate_labels[0].set_color(BLACK)
+    ax.coordinate_labels[1].set_color(BLACK)
     return ax
 
 
