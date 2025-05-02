@@ -9,7 +9,7 @@ from utils import (
     add_kmeans_clusters,
 )
 
-### Will un comment when switching to WHITE background
+### Uncomment when switching to WHITE background
 config.background_color = WHITE
 
 ### Set default color for common objects
@@ -173,13 +173,12 @@ def make_axes(
         x_length=x_length,
         y_length=y_length,
         axis_config={
-            "color": WHITE,  # <- not needed if backgroud colour is default BLACK
+            "color": BLACK,  # <- not needed if backgroud colour is default BLACK
             "include_tip": False,
             "include_numbers": True,
             "decimal_number_config": {
                 "num_decimal_places": 0,
                 "group_with_commas": False,  # <- This removes the comma delimitation
-                # "color": WHITE,
             },
         },
         x_axis_config={
@@ -281,7 +280,7 @@ class SpendingVsGrowthAnimatedScene(Scene):
 
         ### Generate axes and labels for gdp and spend
         gdp_ax, gdp_x_label, gdp_y_label = self.generate_axes(
-            x_range=[1850, 2023, 10],
+            x_range=[1840, 2023, 20],
             y_range=[3, 5, 1],
             x_numbers_to_include=list(range(1860, 2023, 20)),
             y_numbers_to_include=list(range(3, 6, 1)),
@@ -294,7 +293,7 @@ class SpendingVsGrowthAnimatedScene(Scene):
             y_length=6,
         )
         spend_ax, spend_x_label, spend_y_label = self.generate_axes(
-            x_range=[1850, 2023, 10],
+            x_range=[1840, 2023, 20],
             y_range=[0, 101, 10],
             x_numbers_to_include=list(range(1860, 2023, 20)),
             y_numbers_to_include=list(range(0, 100, 20)),
@@ -334,7 +333,7 @@ class SpendingVsGrowthAnimatedScene(Scene):
         )
 
         # Create the "United Kingdom" text
-        uk_text = Text("United Kingdom", font_size=14, color=WHITE)
+        uk_text = Text("United Kingdom", font_size=14, color=BLACK)
         uk_text.move_to(gdp_ax.c2p(2015, 1e5))  # Adjusted to top right of gdp_ax
 
         ### Draw plots and text
@@ -563,7 +562,7 @@ class SpendingVsGrowthAnimatedScene(Scene):
             )
 
             # Create the "Focus Country" text
-            fc_text = Text(focus_country, font_size=14, color=WHITE)
+            fc_text = Text(focus_country, font_size=14, color=BLACK)
             fc_text.move_to(gdp_ax.c2p(2012, 1e5))  # Adjusted to top right of gdp_ax
 
             ### Draw plots and text
@@ -773,8 +772,8 @@ class SpendingVsGrowthAnimatedScene(Scene):
                 ax = spend_ax
             rect = Polygon(
                 *[ax.c2p(*i) for i in self.get_rectangle_corners(*coord_tuples_list)],
-                color=BLACK,
-                fill_color=BLACK,
+                color=WHITE,
+                fill_color=WHITE,
                 fill_opacity=1.0,
             )
             rect_list.append(rect)
