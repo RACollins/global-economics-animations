@@ -219,9 +219,6 @@ class SpendingVsGrowthAnimatedScene(Scene):
 
         ### Load data for line graphs and put in DataFrame
         line_graphs_df = get_spend_gdp_df()
-        uk_line_graphs_df = line_graphs_df.loc[
-            line_graphs_df["Country"] == demo_country, :
-        ].set_index("Year", drop=False)
         line_graphs_debt_adjusted_df = get_spend_gdp_debt_adjusted_df()
         uk_line_graphs_debt_adjusted_df = line_graphs_debt_adjusted_df.loc[
             line_graphs_debt_adjusted_df["Country"] == demo_country, :
@@ -316,15 +313,15 @@ class SpendingVsGrowthAnimatedScene(Scene):
 
         ### Generate line plots and draw
         gdp_line_graph = gdp_ax.plot_line_graph(
-            x_values=uk_line_graphs_df["Year"],
-            y_values=uk_line_graphs_df["GDP per capita (OWiD)"],
+            x_values=uk_line_graphs_debt_adjusted_df["Year"],
+            y_values=uk_line_graphs_debt_adjusted_df["GDP per capita (OWiD)"],
             line_color=country_to_colour_map[demo_country],
             add_vertex_dots=False,
             stroke_width=2,
         )
         spend_line_graph = spend_ax.plot_line_graph(
-            x_values=uk_line_graphs_df["Year"],
-            y_values=uk_line_graphs_df[
+            x_values=uk_line_graphs_debt_adjusted_df["Year"],
+            y_values=uk_line_graphs_debt_adjusted_df[
                 "Government Expenditure (IMF, Wiki, Statistica)"
             ],
             line_color=country_to_colour_map[demo_country],
@@ -334,7 +331,7 @@ class SpendingVsGrowthAnimatedScene(Scene):
 
         # Create the "United Kingdom" text
         uk_text = Text("United Kingdom", font_size=14, color=BLACK)
-        uk_text.move_to(gdp_ax.c2p(2015, 1e5))  # Adjusted to top right of gdp_ax
+        uk_text.move_to(gdp_ax.c2p(2010, 1e5))  # Adjusted to top right of gdp_ax
 
         ### Draw plots and text
         self.play(
@@ -346,12 +343,10 @@ class SpendingVsGrowthAnimatedScene(Scene):
         )
         self.wait()
 
-        ### Unwrite the text
-        self.play(Unwrite(uk_text, run_time=1.0))
-
-        ### Add line plots to stacked vgroups and move to left
+        ### Add line plots and text to stacked vgroups and move to left
         stacked_plots_vgroup += gdp_line_graph
         stacked_plots_vgroup += spend_line_graph
+        stacked_plots_vgroup += uk_text
         self.play(stacked_plots_vgroup.animate.shift(LEFT * 4.33))
 
         ### Draw composite axes to right
@@ -397,7 +392,7 @@ class SpendingVsGrowthAnimatedScene(Scene):
             lambda: Dot(
                 comp_ax.coords_to_point(
                     *self.years_to_coords(
-                        uk_scatter_df,
+                        uk_scatter_debt_adjusted_df,
                         round(lower_vt.get_value()),
                         round(upper_vt.get_value()),
                     )
@@ -443,7 +438,7 @@ class SpendingVsGrowthAnimatedScene(Scene):
                 Dot(
                     comp_ax.coords_to_point(
                         *self.years_to_coords(
-                            uk_scatter_df,
+                            uk_scatter_debt_adjusted_df,
                             lower_bound,
                             upper_bound,
                         )
@@ -473,50 +468,11 @@ class SpendingVsGrowthAnimatedScene(Scene):
         )
         self.wait()
 
-        ### Transform gdp per capita to show debt-adjusted data
-        ### First, generate new line graph data
-        gdp_line_graph_debt_adjusted = gdp_ax.plot_line_graph(
-            x_values=uk_line_graphs_debt_adjusted_df["Year"],
-            y_values=uk_line_graphs_debt_adjusted_df["GDP per capita (OWiD)"],
-            line_color=country_to_colour_map[demo_country],
-            add_vertex_dots=False,
-            stroke_width=2,
-        )
-
-        ### Then, generate new dot data
-        demo_dots_list_debt_adjusted = []
-        for lower_bound in list(range(1850, 2018)):
-            upper_bound = lower_bound + 5
-            demo_dots_list_debt_adjusted.append(
-                Dot(
-                    comp_ax.coords_to_point(
-                        *self.years_to_coords(
-                            uk_scatter_debt_adjusted_df,
-                            lower_bound,
-                            upper_bound,
-                        )
-                    ),
-                    color=country_to_colour_map[demo_country],
-                    radius=0.05,
-                    fill_opacity=0.3,
-                )
-            )
-
-        ### Finally, animate the transformations
-        self.play(
-            Transform(gdp_line_graph, gdp_line_graph_debt_adjusted),
-            *[
-                Transform(d, demo_dots_list_debt_adjusted[i])
-                for i, d in enumerate(demo_dots_list)
-            ],
-            run_time=1,
-        )
-        self.wait(2)
-
-        ### Remove UK lines and dots
+        ### Remove UK lines, dots and text
         self.play(
             Unwrite(spend_line_graph),
             Unwrite(gdp_line_graph),
+            Unwrite(uk_text),
             *[Unwrite(d) for d in demo_dots_list],
             run_time=1,
         )
@@ -646,9 +602,6 @@ class SpendingVsGrowthAnimatedScene(Scene):
                 )
                 self.wait()
 
-            ### Unwrite the text
-            self.play(Unwrite(fc_text, run_time=1.0))
-
             ### Declare ValueTrackers and start it at 1880 for Japan, G7 and 1850 for others
             initial_start_year = 1880 if focus_country in ["Japan", "G7"] else 1850
             initial_end_year = 1885 if focus_country in ["Japan", "G7"] else 1855
@@ -732,11 +685,12 @@ class SpendingVsGrowthAnimatedScene(Scene):
             )
             self.wait()
 
-            ### Remove Focus Country's lines and dots if not final country
+            ### Remove Focus Country's lines, dots and text if not final country
             if fc != len(focus_countries) - 1:
                 self.play(
                     Unwrite(spend_line_graph),
                     Unwrite(gdp_line_graph),
+                    Unwrite(fc_text),
                     *[Unwrite(d) for d in demo_dots_list],
                     run_time=1,
                 )
