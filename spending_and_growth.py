@@ -402,12 +402,23 @@ class SpendingVsGrowthAnimatedScene(Scene):
                 fill_opacity=0.85,
             )
         )
+        ### Create year range display
+        year_text_range = always_redraw(
+            lambda: Text(
+                f"{int(lower_vt.get_value())} - {int(upper_vt.get_value())}",
+                font_size=14,
+                color=BLACK,
+            ).move_to(
+                comp_ax.c2p(70, -10)
+            )  # Position in bottom right corner
+        )
 
         ### Write the projected lines and demo point to the scene
         self.play(
             Write(lower_projecting_line, run_time=1.0),
             Write(upper_projecting_line, run_time=1.0),
             Write(demo_dot, run_time=1.0),
+            Write(year_text_range, run_time=1.0),
         )
         self.wait()
 
