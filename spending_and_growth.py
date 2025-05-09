@@ -25,13 +25,13 @@ np.random.seed(37)
 
 cwd = os.getcwd()
 colour_map = {
-    "Asia": XKCD.FADEDRED,
+    "Asia": "#DE5151",
     "Americas": XKCD.BUBBLEGUM,
     "Africa": XKCD.AMBER,
-    "Europe": XKCD.ALGAEGREEN,
+    "Europe": "#0BB580",
     "Oceania": XKCD.RICHBLUE,
-    "G7": XKCD.AZURE,
-    "World": XKCD.AZURE,
+    "G7": "#1099D0",
+    "World": "#1099D0",
 }
 
 ### Between 10s
@@ -375,14 +375,14 @@ class SpendingVsGrowthAnimatedScene(Scene):
         ### Create the line that connects the both graphs
         lower_projecting_line = always_redraw(
             lambda: DashedLine(
-                color=XKCD.YELLOW,
+                color="#FEB646",
                 end=gdp_ax.c2p(lower_vt.get_value(), 100e3),
                 start=spend_ax.c2p(lower_vt.get_value(), 0),
             )
         )
         upper_projecting_line = always_redraw(
             lambda: DashedLine(
-                color=XKCD.YELLOW,
+                color="#FEB646",
                 end=gdp_ax.c2p(upper_vt.get_value(), 100e3),
                 start=spend_ax.c2p(upper_vt.get_value(), 0),
             )
@@ -622,14 +622,14 @@ class SpendingVsGrowthAnimatedScene(Scene):
             ### Create the line that connects the both graphs
             lower_projecting_line = always_redraw(
                 lambda: DashedLine(
-                    color=XKCD.YELLOW,
+                    color="#FEB646",
                     end=gdp_ax.c2p(lower_vt.get_value(), 10e4),
                     start=spend_ax.c2p(lower_vt.get_value(), 0),
                 )
             )
             upper_projecting_line = always_redraw(
                 lambda: DashedLine(
-                    color=XKCD.YELLOW,
+                    color="#FEB646",
                     end=gdp_ax.c2p(upper_vt.get_value(), 10e4),
                     start=spend_ax.c2p(upper_vt.get_value(), 0),
                 )
