@@ -358,7 +358,7 @@ class SpendingVsGrowthAnimatedScene(Scene):
             log_y=False,
             animate_axes=True,
             x_axis_label="Average Gover nment Expenditure (%)",
-            y_axis_label="Average change in GDP per capita (%)",
+            y_axis_label="Gr owth - Change in GDP per capita (%)",
             font_size=14,
             x_length=14,
             y_length=12,
