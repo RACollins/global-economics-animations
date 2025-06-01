@@ -8,6 +8,14 @@ from utils import add_line_of_best_fit, add_moving_average
 ### Definitions ###
 ###################
 
+### Uncomment when switching to WHITE background
+config.background_color = WHITE
+
+### Set default color for common objects
+Line.set_default(color=BLACK)
+Text.set_default(color=BLACK)
+Axes.set_default(color=BLACK)
+
 cwd = os.getcwd()
 
 #################
@@ -51,7 +59,7 @@ def make_axes(
         x_length=x_length,
         y_length=y_length,
         axis_config={
-            "color": WHITE,  # <- not needed if backgroud colour is default BLACK
+            "color": BLACK,  # <- not needed if backgroud colour is default BLACK
             "include_tip": False,
             "include_numbers": True,
             "decimal_number_config": {
@@ -59,9 +67,14 @@ def make_axes(
                 "group_with_commas": False,  # <- This removes the comma delimitation
             },
         },
-        x_axis_config={"numbers_to_include": x_numbers_to_include},
+        x_axis_config={
+            "numbers_to_include": x_numbers_to_include,
+        },
         y_axis_config=y_axis_config,
     )
+    ax.add_coordinates()
+    ax.coordinate_labels[0].set_color(BLACK)
+    ax.coordinate_labels[1].set_color(BLACK)
     return ax
 
 
@@ -82,7 +95,7 @@ class LabourValueInBreadScene(Scene):
 
         ### Generate axes and labels for gdp and spend
         ax, x_label, y_label = self.generate_axes(
-            x_range=[1200, 2020, 50],
+            x_range=[1200, 2020, 100],
             y_range=[0, 7, 1],
             x_numbers_to_include=list(range(1200, 2020, 100)),
             y_numbers_to_include=list(range(0, 7, 1)),
@@ -101,7 +114,7 @@ class LabourValueInBreadScene(Scene):
             y_values=df["moving_average"],
             line_color=XKCD.SANDBROWN,
             add_vertex_dots=False,
-            stroke_width=2,
+            stroke_width=3,
         )
 
         ### Draw plots
@@ -142,8 +155,8 @@ class LabourValueInBreadScene(Scene):
             ax = ax.scale(scale)
 
         ### Add axis labels
-        x_label = ax.get_x_axis_label(Text(x_axis_label, font_size=font_size))
-        y_label = ax.get_y_axis_label(Text(y_axis_label, font_size=font_size))
+        x_label = ax.get_x_axis_label(Text(x_axis_label, font_size=font_size, color=BLACK))
+        y_label = ax.get_y_axis_label(Text(y_axis_label, font_size=font_size, color=BLACK))
 
         if animate_axes:
             ### Animate the creation of Axes
