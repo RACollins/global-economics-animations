@@ -270,3 +270,12 @@ def add_moving_average(df, x_col, y_col, window):
         df["moving_average"].fillna(method="bfill").fillna(method="ffill")
     )
     return df
+
+
+def convert_to_moving_average(df, x_col, y_col, window):
+    df[y_col] = df[y_col].rolling(window=window).mean()
+    # First use backward fill to handle NaN values at the beginning
+    df[y_col] = (
+        df[y_col].fillna(method="bfill").fillna(method="ffill")
+    )
+    return df

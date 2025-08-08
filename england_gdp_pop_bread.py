@@ -1,0 +1,384 @@
+from manim import *
+import numpy as np
+import pandas as pd
+import os
+from utils import add_line_of_best_fit, add_moving_average, convert_to_moving_average
+
+
+###################
+### Definitions ###
+###################
+
+### Uncomment when switching to WHITE background
+config.background_color = WHITE
+
+### Set default color for common objects
+Line.set_default(color=BLACK)
+Text.set_default(color=BLACK)
+Axes.set_default(color=BLACK)
+
+cwd = os.getcwd()
+
+#################
+### Functions ###
+#################
+
+
+def get_multi_chart_data() -> pd.DataFrame:
+    # Read the original data
+    df = pd.read_csv(cwd + "/data/multi_chart_data.csv")
+    complete_years = pd.DataFrame({"Year": range(1200, 2021)})
+    df = pd.merge(complete_years, df, on="Year", how="left")
+    for col in df.columns:
+        if col == "Year":
+            continue
+        df[col] = df[col].interpolate(method="quadratic")
+        df = convert_to_moving_average(df, "Year", col, 10)
+
+    return df
+
+
+def make_axes(
+    x_range: list,
+    y_range: list,
+    x_numbers_to_include: list,
+    y_numbers_to_include: list,
+    log_y: bool,
+    x_length: int,
+    y_length: int,
+):
+    if log_y:
+        y_axis_config = {
+            "numbers_to_include": y_numbers_to_include,
+            "scaling": LogBase(custom_labels=True),
+        }
+    else:
+        y_axis_config = {
+            "numbers_to_include": y_numbers_to_include,
+        }
+    ax = Axes(
+        x_range=x_range,
+        y_range=y_range,
+        x_length=x_length,
+        y_length=y_length,
+        axis_config={
+            "color": BLACK,  # <- not needed if backgroud colour is default BLACK
+            "include_tip": False,
+            "include_numbers": True,
+            "decimal_number_config": {
+                "num_decimal_places": 0,
+                "group_with_commas": False,  # <- This removes the comma delimitation
+            },
+        },
+        x_axis_config={
+            "numbers_to_include": x_numbers_to_include,
+        },
+        y_axis_config=y_axis_config,
+    )
+    ax.add_coordinates()
+    ax.coordinate_labels[0].set_color(BLACK)
+    ax.coordinate_labels[1].set_color(BLACK)
+    return ax
+
+
+###############
+### Classes ###
+###############
+
+##############
+### Scenes ###
+##############
+
+
+class GDP1300to1500(Scene):
+
+    def construct(self):
+        ### Get data
+        df = get_multi_chart_data()
+
+        ### Limit to time range
+        start_year = 1300
+        end_year = 1500
+        df = df.loc[(df["Year"] >= start_year) & (df["Year"] <= end_year)]
+
+        ### Generate axes and labels for gdp and spend
+        ax, x_label, y_label = self.generate_axes(
+            x_range=[start_year, end_year, 50],
+            y_range=[0, 5, 1],
+            x_numbers_to_include=list(range(start_year, end_year, 50)),
+            y_numbers_to_include=list(range(0, 5, 1)),
+            log_y=False,
+            animate_axes=True,
+            x_axis_label="Year",
+            y_axis_label="Real GDP (£B)",
+            font_size=26,
+            x_length=12,
+            y_length=6,
+        )
+
+        ### Generate line plots and draw
+        line_graph = ax.plot_line_graph(
+            x_values=df["Year"],
+            y_values=df["Real GDP (£B)"],
+            line_color=XKCD.BLUE,
+            add_vertex_dots=False,
+            stroke_width=3,
+        )
+
+        ### Draw plots
+        self.play(
+            Write(line_graph, run_time=6.5, rate_func=rate_functions.ease_in_quad)
+        )
+        self.wait()
+
+    def generate_axes(
+        self,
+        x_range: list,
+        y_range: list,
+        x_numbers_to_include: list,
+        y_numbers_to_include: list,
+        log_y: bool,
+        animate_axes: bool,
+        x_axis_label: str,
+        y_axis_label: str,
+        font_size: int,
+        x_length: int,
+        y_length: int,
+        position: float = None,
+        scale: float = None,
+    ) -> tuple:
+        ax = make_axes(
+            x_range=x_range,
+            y_range=y_range,
+            x_numbers_to_include=x_numbers_to_include,
+            y_numbers_to_include=y_numbers_to_include,
+            log_y=log_y,
+            x_length=x_length,
+            y_length=y_length,
+        )
+
+        if position:
+            ax = ax.move_to(RIGHT * position)
+        if scale:
+            ax = ax.scale(scale)
+
+        ### Add axis labels
+        x_label = ax.get_x_axis_label(
+            Text(x_axis_label, font_size=font_size, color=BLACK)
+        )
+        y_label = ax.get_y_axis_label(
+            Text(y_axis_label, font_size=font_size, color=BLACK)
+        )
+
+        if animate_axes:
+            ### Animate the creation of Axes
+            self.play(Write(ax))
+            self.play(Write(x_label))
+            self.play(Write(y_label))
+            self.wait()  # wait for 1 second
+        else:
+            ### Just generate without animation
+            self.add(ax)
+            self.add(x_label)
+            self.add(y_label)
+
+        return ax, x_label, y_label
+
+
+class Pop1300to1500(Scene):
+
+    def construct(self):
+        ### Get data
+        df = get_multi_chart_data()
+
+        ### Limit to time range
+        start_year = 1300
+        end_year = 1500
+        df = df.loc[(df["Year"] >= start_year) & (df["Year"] <= end_year)]
+
+        ### Convert pop to millions
+        df["Population (England)"] = df["Population (England)"] / 1000000
+
+        ### Generate axes and labels for gdp and spend
+        ax, x_label, y_label = self.generate_axes(
+            x_range=[start_year, end_year, 50],
+            y_range=[0, 5, 1],
+            x_numbers_to_include=list(range(start_year, end_year, 50)),
+            y_numbers_to_include=list(range(0, 5, 1)),
+            log_y=False,
+            animate_axes=True,
+            x_axis_label="Year",
+            y_axis_label="Population (millions)",
+            font_size=26,
+            x_length=12,
+            y_length=6,
+        )
+
+        ### Generate line plots and draw
+        line_graph = ax.plot_line_graph(
+            x_values=df["Year"],
+            y_values=df["Population (England)"],
+            line_color=XKCD.RED,
+            add_vertex_dots=False,
+            stroke_width=3,
+        )
+
+        ### Draw plots
+        self.play(
+            Write(line_graph, run_time=6.5, rate_func=rate_functions.ease_in_quad)
+        )
+        self.wait()
+
+    def generate_axes(
+        self,
+        x_range: list,
+        y_range: list,
+        x_numbers_to_include: list,
+        y_numbers_to_include: list,
+        log_y: bool,
+        animate_axes: bool,
+        x_axis_label: str,
+        y_axis_label: str,
+        font_size: int,
+        x_length: int,
+        y_length: int,
+        position: float = None,
+        scale: float = None,
+    ) -> tuple:
+        ax = make_axes(
+            x_range=x_range,
+            y_range=y_range,
+            x_numbers_to_include=x_numbers_to_include,
+            y_numbers_to_include=y_numbers_to_include,
+            log_y=log_y,
+            x_length=x_length,
+            y_length=y_length,
+        )
+
+        if position:
+            ax = ax.move_to(RIGHT * position)
+        if scale:
+            ax = ax.scale(scale)
+
+        ### Add axis labels
+        x_label = ax.get_x_axis_label(
+            Text(x_axis_label, font_size=font_size, color=BLACK)
+        )
+        y_label = ax.get_y_axis_label(
+            Text(y_axis_label, font_size=font_size, color=BLACK)
+        )
+
+        if animate_axes:
+            ### Animate the creation of Axes
+            self.play(Write(ax))
+            self.play(Write(x_label))
+            self.play(Write(y_label))
+            self.wait()  # wait for 1 second
+        else:
+            ### Just generate without animation
+            self.add(ax)
+            self.add(x_label)
+            self.add(y_label)
+
+        return ax, x_label, y_label
+
+
+class GDPperCapita1300to1500(Scene):
+
+    def construct(self):
+        ### Get data
+        df = get_multi_chart_data()
+
+        ### Limit to time range
+        start_year = 1300
+        end_year = 1500
+        df = df.loc[(df["Year"] >= start_year) & (df["Year"] <= end_year)]
+
+        ### Generate axes and labels for gdp and spend
+        ax, x_label, y_label = self.generate_axes(
+            x_range=[start_year, end_year, 50],
+            y_range=[0, 1500, 200],
+            x_numbers_to_include=list(range(start_year, end_year, 50)),
+            y_numbers_to_include=list(range(0, 1500, 200)),
+            log_y=False,
+            animate_axes=True,
+            x_axis_label="Year",
+            y_axis_label="GDP Per Person (£)",
+            font_size=26,
+            x_length=12,
+            y_length=6,
+        )
+
+        ### Generate line plots and draw
+        line_graph = ax.plot_line_graph(
+            x_values=df["Year"],
+            y_values=df["GDP Per Person"],
+            line_color=XKCD.BLUE,
+            add_vertex_dots=False,
+            stroke_width=3,
+        )
+
+        ### Draw plots
+        self.play(
+            Write(line_graph, run_time=6.5, rate_func=rate_functions.ease_in_quad)
+        )
+        self.wait()
+
+    def generate_axes(
+        self,
+        x_range: list,
+        y_range: list,
+        x_numbers_to_include: list,
+        y_numbers_to_include: list,
+        log_y: bool,
+        animate_axes: bool,
+        x_axis_label: str,
+        y_axis_label: str,
+        font_size: int,
+        x_length: int,
+        y_length: int,
+        position: float = None,
+        scale: float = None,
+    ) -> tuple:
+        ax = make_axes(
+            x_range=x_range,
+            y_range=y_range,
+            x_numbers_to_include=x_numbers_to_include,
+            y_numbers_to_include=y_numbers_to_include,
+            log_y=log_y,
+            x_length=x_length,
+            y_length=y_length,
+        )
+
+        if position:
+            ax = ax.move_to(RIGHT * position)
+        if scale:
+            ax = ax.scale(scale)
+
+        ### Add axis labels
+        x_label = ax.get_x_axis_label(
+            Text(x_axis_label, font_size=font_size, color=BLACK)
+        )
+        y_label = ax.get_y_axis_label(
+            Text(y_axis_label, font_size=font_size, color=BLACK)
+        )
+
+        if animate_axes:
+            ### Animate the creation of Axes
+            self.play(Write(ax))
+            self.play(Write(x_label))
+            self.play(Write(y_label))
+            self.wait()  # wait for 1 second
+        else:
+            ### Just generate without animation
+            self.add(ax)
+            self.add(x_label)
+            self.add(y_label)
+
+        return ax, x_label, y_label
+    
+
+if __name__ == "__main__":
+    df = get_multi_chart_data()
+    print(df.loc[df["Year"] >= 2000])
+    pass
