@@ -1,7 +1,8 @@
 from manim import *
+import numpy as np
 import pandas as pd
 import os
-from utils import add_line_of_best_fit, add_moving_average
+from utils import add_line_of_best_fit, add_moving_average, convert_to_moving_average
 
 
 ###################
@@ -23,27 +24,17 @@ cwd = os.getcwd()
 #################
 
 
-def get_labour_value_in_bread_df() -> pd.DataFrame:
+def get_gdp_and_wages_df() -> pd.DataFrame:
     # Read the original data
-    df = pd.read_csv(cwd + "/data/labour_value_in_bread.csv")
+    df = pd.read_csv(cwd + "/data/gdp_per_capita_vs_weekly_wages.csv")
     complete_years = pd.DataFrame({"Year": range(1200, 2021)})
     df = pd.merge(complete_years, df, on="Year", how="left")
-    df["Hr Rate bread (kg)"] = df["Hr Rate bread (kg)"].interpolate(method="quadratic")
+    for col in df.columns:
+        if col == "Year":
+            continue
+        df[col] = df[col].interpolate(method="quadratic")
+        df = convert_to_moving_average(df, "Year", col, 10)
 
-    df = add_line_of_best_fit(df, "Year", "Hr Rate bread (kg)", 10)
-    df = add_moving_average(df, "Year", "Hr Rate bread (kg)", 20)
-    return df
-
-
-def get_labour_value_in_bread_alt_df() -> pd.DataFrame:
-    # Read the original data
-    df = pd.read_csv(cwd + "/data/labour_value_in_bread_alt.csv")
-    complete_years = pd.DataFrame({"Year": range(1200, 2021)})
-    df = pd.merge(complete_years, df, on="Year", how="left")
-    df["Hr Rate bread (kg)"] = df["Hr Rate bread (kg)"].interpolate(method="quadratic")
-
-    df = add_line_of_best_fit(df, "Year", "Hr Rate bread (kg)", 10)
-    df = add_moving_average(df, "Year", "Hr Rate bread (kg)", 20)
     return df
 
 
@@ -94,51 +85,87 @@ def make_axes(
 ### Classes ###
 ###############
 
-#############
-### Scene ###
-#############
+##############
+### Scenes ###
+##############
 
 
-class LabourValueInBreadScene(Scene):
+class GDPPerPersonVsWeeklyWages1800to2000(Scene):
 
     def construct(self):
         ### Get data
-        df = get_labour_value_in_bread_alt_df()
+        df = get_gdp_and_wages_df()
 
         ### Limit to time range
         start_year = 1800
-        end_year = 2020
+        end_year = 2000
         df = df.loc[(df["Year"] >= start_year) & (df["Year"] <= end_year)]
 
-        ### Generate axes and labels for gdp and spend
+        ### Remove rows with missing data for either variable
+        df = df.dropna(
+            subset=[
+                "GDP /Person rolling average",
+                "Real Average Weekly Wages (Bank of England (2017))",
+            ]
+        )
+
+        ### Sort by year to ensure chronological order
+        df = df.sort_values("Year").reset_index(drop=True)
+
+        ### Filter to only every 5 years
+        df = df[df["Year"] % 5 == 0]
+
+        ### Determine axis ranges based on data
+        x_min, x_max = (
+            df["GDP /Person rolling average"].min(),
+            df["GDP /Person rolling average"].max(),
+        )
+        y_min, y_max = (
+            df["Real Average Weekly Wages (Bank of England (2017))"].min(),
+            df["Real Average Weekly Wages (Bank of England (2017))"].max(),
+        )
+
+        # Add padding to ranges
+        x_padding = (x_max - x_min) * 0.1
+        y_padding = (y_max - y_min) * 0.1
+
+        x_range = [x_min - x_padding, x_max + x_padding]
+        y_range = [y_min - y_padding, y_max + y_padding]
+
+        ### Generate axes and labels
         ax, x_label, y_label = self.generate_axes(
-            x_range=[start_year, end_year, 50],
-            y_range=[0, 7, 1],
-            x_numbers_to_include=list(range(start_year, end_year, 50)),
-            y_numbers_to_include=list(range(0, 7, 1)),
+            x_range=[0, 25000, 5000],
+            y_range=[0, 500, 100],
+            x_numbers_to_include=list(range(0, 25001, 5000)),
+            y_numbers_to_include=list(range(0, 501, 100)),
             log_y=False,
             animate_axes=True,
-            x_axis_label="Year",
-            y_axis_label="Labour Value in Bread (kg/h)",
+            x_axis_label="GDP Per Person (£)",
+            y_axis_label="Weekly Wages (£)",
             font_size=26,
             x_length=12,
             y_length=6,
         )
 
-        ### Generate line plots and draw
-        line_graph = ax.plot_line_graph(
-            x_values=df["Year"],
-            y_values=df["moving_average"],
-            line_color=XKCD.SANDBROWN,
-            add_vertex_dots=False,
-            stroke_width=3,
-        )
+        ### Create dots for each year
+        dots = []
+        years = []
+        for i in range(len(df)):
+            year = df.iloc[i]["Year"]
+            x_val = df.iloc[i]["GDP /Person rolling average"]
+            y_val = df.iloc[i]["Real Average Weekly Wages (Bank of England (2017))"]
 
-        ### Draw plots
-        self.play(
-            Write(line_graph, run_time=6.5, rate_func=rate_functions.ease_in_quad)
-        )
-        self.wait()
+            dot = Dot(
+                ax.c2p(x_val, y_val), color=XKCD.BLUE, radius=0.08, fill_opacity=0.8
+            )
+            dots.append(dot)
+            years.append(year)
+
+        ### Animate dots sequentially from 1800 to 2000
+        self.play(LaggedStart(*[Create(dot) for dot in dots], lag_ratio=0.2))
+
+        # Pause at the end to show final result
+        self.wait(3)
 
     def generate_axes(
         self,
@@ -172,27 +199,29 @@ class LabourValueInBreadScene(Scene):
             ax = ax.scale(scale)
 
         ### Add axis labels
-        x_label = ax.get_x_axis_label(Text(x_axis_label, font_size=font_size, color=BLACK))
-        y_label = ax.get_y_axis_label(Text(y_axis_label, font_size=font_size, color=BLACK))
+        x_label = ax.get_x_axis_label(
+            Text(x_axis_label, font_size=font_size, color=BLACK)
+        )
+        y_label = ax.get_y_axis_label(
+            Text(y_axis_label, font_size=font_size, color=BLACK)
+        )
 
         if animate_axes:
             ### Animate the creation of Axes
             self.play(Write(ax))
             self.play(Write(x_label))
             self.play(Write(y_label))
-            # self.play(Write(title))
             self.wait()  # wait for 1 second
         else:
             ### Just generate without animation
             self.add(ax)
             self.add(x_label)
             self.add(y_label)
-            # self.add(line_graph)
 
         return ax, x_label, y_label
 
 
 if __name__ == "__main__":
-    df = get_labour_value_in_bread_df()
-    print(df)
+    df = get_gdp_and_wages_df()
+    print(df.loc[df["Year"] >= 2000])
     pass
