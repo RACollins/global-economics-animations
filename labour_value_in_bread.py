@@ -107,7 +107,7 @@ class LabourValueInBreadScene(Scene):
 
         ### Limit to time range
         start_year = 1800
-        end_year = 2020
+        end_year = 2020  
         df = df.loc[(df["Year"] >= start_year) & (df["Year"] <= end_year)]
 
         ### Generate axes and labels for gdp and spend
