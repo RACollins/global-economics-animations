@@ -1,4 +1,5 @@
 from manim import *
+import numpy as np
 import pandas as pd
 import os
 
@@ -139,6 +140,69 @@ class ConsumptionVsGDP(Scene):
 
         ### Pause at the end to show final result
         self.wait()
+
+        ### Draw dot by dot the sequence for the UK from 1750 to 2012
+        ### Reduce opacity of plotted dots to 0.3
+
+        ### Create ValueTracker for year animation
+        year_tracker = ValueTracker(1750)
+
+        ### Create year display in bottom right corner using absolute positioning
+        year_text_display = always_redraw(
+            lambda: Text(
+                f"{int(year_tracker.get_value())}",
+                font_size=24,
+                color=BLACK,
+            ).move_to(
+                [5, -1.5, 0]
+            )  # Absolute position in bottom right
+        )
+
+        ### Create dynamic UK dot that follows the year tracker
+        uk_dynamic_dot = always_redraw(
+            lambda: self.create_uk_dot_for_year(df, ax, int(year_tracker.get_value()))
+        )
+
+        ### Generate list of dots and add to scene while value tracker changes
+        uk_dots_list = []
+        uk_df = df.loc[df["Entity"] == "United Kingdom", :]
+        for year in range(1750, 2013):
+            year_data = uk_df.loc[uk_df["Year"] == year, :]
+            if not year_data.empty:
+                x_val = year_data["GDP per capita"].values[0]
+                y_val = year_data["Median Income Consumption ($/day)"].values[0]
+                region = year_data["World regions according to OWID"].values[0]
+                size = year_data["Country Size"].values[0]
+
+                uk_dots_list.append(
+                    Dot(
+                        ax.c2p(x_val, y_val),
+                        color=colour_map[region],
+                        radius=radius_map[size],
+                        fill_opacity=0.3,  # Lower opacity for trail dots
+                    )
+                )
+
+        ### Add the dynamic dot and year display to scene
+        self.add(uk_dynamic_dot, year_text_display)
+
+        ### Animate the year tracker and create trailing dots
+        self.play(
+            year_tracker.animate.set_value(2012),
+            LaggedStart(
+                *[Create(d) for d in uk_dots_list],
+                lag_ratio=100.0
+                / len(uk_dots_list),  # Spread evenly over animation time
+                rate_func=rate_functions.linear,
+            ),
+            run_time=12.0,
+            rate_func=rate_functions.linear,
+        )
+        self.wait()
+
+        ### Remove the dynamic elements before continuing
+        self.remove(uk_dynamic_dot, year_text_display)
+        self.play(*[Unwrite(d) for d in uk_dots_list], run_time=1.0)
 
         ### Draw red and green rectangles in bottom left and top right sections of graph
         gdp_median_rect_list = []
@@ -292,9 +356,6 @@ class ConsumptionVsGDP(Scene):
         ### Update ax reference to new_ax for subsequent operations
         ax = new_ax
 
-        ### Add lines of best fit
-        
-
     def get_rectangle_corners(self, bottom_left, top_right):
         return [
             (top_right[0], top_right[1]),
@@ -303,28 +364,81 @@ class ConsumptionVsGDP(Scene):
             (top_right[0], bottom_left[1]),
         ]
 
-    def generate_dots(self, df: pd.DataFrame, ax: Axes, x_col: str, y_col: str):
-        countries = df["Entity"].unique()
-        excluded_countries = ["Kosovo", "Burundi"]
+    def create_uk_dot_for_year(self, df: pd.DataFrame, ax: Axes, year: int):
+        """Create a single UK dot for a specific year"""
+        uk_df = df.loc[df["Entity"] == "United Kingdom", :]
+        year_data = uk_df.loc[uk_df["Year"] == year, :]
+
+        if year_data.empty:
+            # Return invisible dot if no data for this year
+            return Dot(ax.c2p(1000, 1), radius=0.0, fill_opacity=0.0)
+
+        x_val = year_data["GDP per capita"].values[0]
+        y_val = year_data["Median Income Consumption ($/day)"].values[0]
+        region = year_data["World regions according to OWID"].values[0]
+        size = year_data["Country Size"].values[0]
+
+        return Dot(
+            ax.c2p(x_val, y_val),
+            color=colour_map[region],
+            radius=radius_map[size],
+            fill_opacity=0.8,
+        )
+
+    def generate_dots(
+        self,
+        df: pd.DataFrame,
+        ax: Axes,
+        x_col: str,
+        y_col: str,
+        uk_sequence: bool = False,
+    ):
         dots = []
-        for country in countries:
-            if country in excluded_countries:
-                continue
-            country_df = df.loc[(df["Entity"] == country) & (df["Year"] == 2023), :]
-            x_val = country_df[x_col].values[0]
-            y_val = country_df[y_col].values[0]
+        if uk_sequence:
+            uk_df = df.loc[df["Entity"] == "United Kingdom", :]
+            for year in range(1750, 2013):
+                x_val = uk_df.loc[uk_df["Year"] == year, "GDP per capita"].values[0]
+                y_val = uk_df.loc[
+                    uk_df["Year"] == year, "Median Income Consumption ($/day)"
+                ].values[0]
+                region = uk_df.loc[
+                    uk_df["Year"] == year, "World regions according to OWID"
+                ].values[0]
+                size = uk_df.loc[uk_df["Year"] == year, "Country Size"].values[0]
+                dots.append(
+                    Dot(
+                        ax.c2p(x_val, y_val),
+                        color=colour_map[region],
+                        radius=radius_map[size],
+                        fill_opacity=0.8,
+                    )
+                )
+        else:
+            countries = df["Entity"].unique()
+            excluded_countries = ["Kosovo", "Burundi"]
+            for country in countries:
+                if country in excluded_countries:
+                    continue
+                country_df = df.loc[(df["Entity"] == country) & (df["Year"] == 2023), :]
+                x_val = country_df[x_col].values[0]
+                y_val = country_df[y_col].values[0]
 
-            region = country_df["World regions according to OWID"].values[0]
-            size = country_df["Country Size"].values[0]
+                region = country_df["World regions according to OWID"].values[0]
+                size = country_df["Country Size"].values[0]
 
-            if y_val < 1:
-                colour = WHITE
-            else:
-                colour = colour_map[region]
-            radius = radius_map[size]
-            dots.append(
-                Dot(ax.c2p(x_val, y_val), color=colour, radius=radius, fill_opacity=0.8)
-            )
+                if y_val < 1:
+                    colour = WHITE
+                else:
+                    colour = colour_map[region]
+                radius = radius_map[size]
+                dots.append(
+                    Dot(
+                        ax.c2p(x_val, y_val),
+                        color=colour,
+                        radius=radius,
+                        fill_opacity=0.8,
+                    )
+                )
         return dots
 
     def generate_axes(
