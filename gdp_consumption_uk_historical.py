@@ -177,7 +177,14 @@ class ConsumptionVsGDP(Scene):
         )
 
         ### Animate transition from GDP vs. median consumption to GDP vs. lowest 10% consumption
+        ### And animate title transition
+
+        ### Create new y-axis label for lowest 10% consumption
+        lowest_10_y_label = ax.get_y_axis_label(
+            Text("Lowest 10% Income Consumption ($/day)", font_size=26, color=BLACK)
+        )
         self.play(
+            Transform(y_label, lowest_10_y_label),
             *[
                 Transform(gdp_median_dots[i], gdp_lowest_10_dots[i])
                 for i in range(len(gdp_median_dots))
@@ -185,9 +192,6 @@ class ConsumptionVsGDP(Scene):
             run_time=1.0,
         )
         self.wait()
-
-        ### Unwrite y-axis label and add new one
-        
 
         ### Draw red and green rectangles in bottom left and top right sections of graph
         gdp_lowest_10_rect_list = []
