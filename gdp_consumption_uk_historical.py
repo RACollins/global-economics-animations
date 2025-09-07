@@ -17,6 +17,23 @@ Axes.set_default(color=BLACK)
 
 cwd = os.getcwd()
 
+colour_map = {
+    "Asia": "#DE5151",
+    "North America": XKCD.BUBBLEGUM,
+    "South America": XKCD.BRIGHTPURPLE,
+    "Africa": XKCD.AMBER,
+    "Europe": "#0BB580",
+    "Oceania": XKCD.RICHBLUE,
+    "G7": "#1099D0",
+    "World": "#1099D0",
+}
+
+radius_map = {
+    "Small": 0.05,
+    "Medium": 0.12,
+    "Large": 0.20,
+}
+
 #################
 ### Functions ###
 #################
@@ -94,6 +111,46 @@ class ConsumptionVsGDP(Scene):
         ### Get data
         df = get_gdp_consumption_uk_historical_df()
 
+        ### Generate axes and labels
+        ax, x_label, y_label = self.generate_axes(
+            x_range=[3, 5, 1],
+            y_range=[0, 2, 1],
+            x_numbers_to_include=list(range(3, 6, 1)),
+            y_numbers_to_include=list(range(0, 3, 1)),
+            log_x=True,
+            log_y=True,
+            animate_axes=True,
+            x_axis_label="GDP per Capita ($)",
+            y_axis_label="Median Consumption ($/day)",
+            font_size=26,
+            x_length=12,
+            y_length=6,
+        )
+
+        ### Create dots for each country in 2023
+        dots = []
+        for country in df["Entity"].unique():
+            if country in ["Kosovo", "Burundi"]:
+                continue
+            country_df = df.loc[(df["Entity"] == country) & (df["Year"] == 2023), :]
+            x_val = country_df["GDP per capita"].values[0]
+            y_val = country_df["Median Income Consumption ($/day)"].values[0]
+
+            region = country_df["World regions according to OWID"].values[0]
+            size = country_df["Country Size"].values[0]
+
+            colour = colour_map[region]
+            radius = radius_map[size]
+            dots.append(
+                Dot(ax.c2p(x_val, y_val), color=colour, radius=radius, fill_opacity=0.8)
+            )
+
+        ### Animate dots sequentially
+        self.play(LaggedStart(*[Create(dot) for dot in dots], lag_ratio=0.05))
+
+        ### Pause at the end to show final result
+        self.wait(3)
+
     def generate_axes(
         self,
         x_range: list,
@@ -148,7 +205,6 @@ class ConsumptionVsGDP(Scene):
             self.add(y_label)
 
         return ax, x_label, y_label
-
 
 
 if __name__ == "__main__":
