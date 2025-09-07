@@ -223,6 +223,78 @@ class ConsumptionVsGDP(Scene):
         )
         self.wait()
 
+        ### Create ValueTrackers for x-axis range animation
+        x_min_tracker = ValueTracker(3)  # Initial x_min (log scale: 10^3 = 1000)
+        x_max_tracker = ValueTracker(5)  # Initial x_max (log scale: 10^5 = 100000)
+
+        ### Create new axes with always_redraw for dynamic x-axis range
+        new_ax = always_redraw(
+            lambda: make_axes(
+                x_range=[x_min_tracker.get_value(), x_max_tracker.get_value(), 1],
+                y_range=[0, 2, 1],
+                x_numbers_to_include=list(
+                    range(
+                        int(x_min_tracker.get_value()),
+                        int(x_max_tracker.get_value()) + 1,
+                        1,
+                    )
+                ),
+                y_numbers_to_include=list(range(0, 3, 1)),
+                log_x=True,
+                log_y=True,
+                x_length=12,
+                y_length=6,
+            )
+        )
+
+        ### Create new x-axis label for median consumption
+        median_x_label = new_ax.get_x_axis_label(
+            Text("Median Income Consumption ($/day)", font_size=26, color=BLACK)
+        )
+
+        ### Remove old axes and add new dynamic axes
+        self.remove(ax)
+        self.add(new_ax)
+
+        ### Create static axes for generating final dot positions (target axes with final range)
+        target_ax = make_axes(
+            x_range=[0, 2, 1],  # Final x-axis range (log scale: 1 to 100)
+            y_range=[0, 2, 1],  # Same y-axis range
+            x_numbers_to_include=list(range(0, 3, 1)),
+            y_numbers_to_include=list(range(0, 3, 1)),
+            log_x=True,
+            log_y=True,
+            x_length=12,
+            y_length=6,
+        )
+
+        ### Generate dots for Median consumption vs. Lowest 10% consumption on the target axes
+        median_lowest_10_dots = self.generate_dots(
+            df,
+            target_ax,
+            "Median Income Consumption ($/day)",
+            "Lowest 10% Income Consumption ($/day)",
+        )
+
+        ### Animate the x-axis range transition and label/dots transformation
+        self.play(
+            x_min_tracker.animate.set_value(0),  # Target x_min (log scale: 10^0 = 1)
+            x_max_tracker.animate.set_value(2),  # Target x_max (log scale: 10^2 = 100)
+            Transform(x_label, median_x_label),
+            *[
+                Transform(gdp_median_dots[i], median_lowest_10_dots[i])
+                for i in range(len(gdp_median_dots))
+            ],
+            run_time=2.0,
+        )
+        self.wait()
+
+        ### Update ax reference to new_ax for subsequent operations
+        ax = new_ax
+
+        ### Add lines of best fit
+        
+
     def get_rectangle_corners(self, bottom_left, top_right):
         return [
             (top_right[0], top_right[1]),
