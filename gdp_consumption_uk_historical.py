@@ -128,28 +128,128 @@ class ConsumptionVsGDP(Scene):
         )
 
         ### Create dots for each country in 2023
+        gdp_median_dots = self.generate_dots(
+            df, ax, "GDP per capita", "Median Income Consumption ($/day)"
+        )
+
+        ### Animate dots sequentially
+        self.play(
+            LaggedStart(*[Create(dot) for dot in gdp_median_dots], lag_ratio=0.05)
+        )
+
+        ### Pause at the end to show final result
+        self.wait()
+
+        ### Draw red and green rectangles in bottom left and top right sections of graph
+        gdp_median_rect_list = []
+        # [(bottom_left, top_right)] <-- [(x_min, y_min), (x_max, y_max)]
+        gdp_median_rect_coords = [
+            [(1e3, 1e0), (2.4e4, 1.75e1)],  # <-- red
+            [(2.4e4, 1.75e1), (1e5, 1e2)],  # <-- green
+        ]
+        for i, coord_tuples_list in enumerate(gdp_median_rect_coords):
+            color = RED if i == 0 else GREEN
+            rect = Polygon(
+                *[ax.c2p(*i) for i in self.get_rectangle_corners(*coord_tuples_list)],
+                color=color,
+                fill_color=color,
+                fill_opacity=0.6,
+            )
+            gdp_median_rect_list.append(rect)
+
+        ### Draw rectangles
+        self.play(
+            *[Create(r) for r in gdp_median_rect_list],
+            run_time=1.0,
+        )
+        self.wait(3)
+
+        ### Undraw rectangles
+        self.play(
+            *[Unwrite(r) for r in gdp_median_rect_list],
+            run_time=1.0,
+        )
+        self.wait()
+
+        ### Generate dots for GDP and lowest 10% consumption
+        gdp_lowest_10_dots = self.generate_dots(
+            df, ax, "GDP per capita", "Lowest 10% Income Consumption ($/day)"
+        )
+
+        ### Animate transition from GDP vs. median consumption to GDP vs. lowest 10% consumption
+        self.play(
+            *[
+                Transform(gdp_median_dots[i], gdp_lowest_10_dots[i])
+                for i in range(len(gdp_median_dots))
+            ],
+            run_time=1.0,
+        )
+        self.wait()
+
+        ### Unwrite y-axis label and add new one
+        
+
+        ### Draw red and green rectangles in bottom left and top right sections of graph
+        gdp_lowest_10_rect_list = []
+        gdp_lowest_10_rect_coords = [
+            [(1e3, 1e0), (2.65e4, 0.75e1)],  # <-- red
+            [(2.65e4, 0.75e1), (1e5, 1e2)],  # <-- green
+        ]
+        for i, coord_tuples_list in enumerate(gdp_lowest_10_rect_coords):
+            color = RED if i == 0 else GREEN
+            rect = Polygon(
+                *[ax.c2p(*i) for i in self.get_rectangle_corners(*coord_tuples_list)],
+                color=color,
+                fill_color=color,
+                fill_opacity=0.6,
+            )
+            gdp_lowest_10_rect_list.append(rect)
+
+        ### Draw red and green rectangles
+        self.play(
+            *[Create(r) for r in gdp_lowest_10_rect_list],
+            run_time=1.0,
+        )
+        self.wait(3)
+
+        ### Undraw rectangles
+        self.play(
+            *[Unwrite(r) for r in gdp_lowest_10_rect_list],
+            run_time=1.0,
+        )
+        self.wait()
+
+    def get_rectangle_corners(self, bottom_left, top_right):
+        return [
+            (top_right[0], top_right[1]),
+            (bottom_left[0], top_right[1]),
+            (bottom_left[0], bottom_left[1]),
+            (top_right[0], bottom_left[1]),
+        ]
+
+    def generate_dots(self, df: pd.DataFrame, ax: Axes, x_col: str, y_col: str):
+        countries = df["Entity"].unique()
+        excluded_countries = ["Kosovo", "Burundi"]
         dots = []
-        for country in df["Entity"].unique():
-            if country in ["Kosovo", "Burundi"]:
+        for country in countries:
+            if country in excluded_countries:
                 continue
             country_df = df.loc[(df["Entity"] == country) & (df["Year"] == 2023), :]
-            x_val = country_df["GDP per capita"].values[0]
-            y_val = country_df["Median Income Consumption ($/day)"].values[0]
+            x_val = country_df[x_col].values[0]
+            y_val = country_df[y_col].values[0]
 
             region = country_df["World regions according to OWID"].values[0]
             size = country_df["Country Size"].values[0]
 
-            colour = colour_map[region]
+            if y_val < 1:
+                colour = WHITE
+            else:
+                colour = colour_map[region]
             radius = radius_map[size]
             dots.append(
                 Dot(ax.c2p(x_val, y_val), color=colour, radius=radius, fill_opacity=0.8)
             )
-
-        ### Animate dots sequentially
-        self.play(LaggedStart(*[Create(dot) for dot in dots], lag_ratio=0.05))
-
-        ### Pause at the end to show final result
-        self.wait(3)
+        return dots
 
     def generate_axes(
         self,
