@@ -1,0 +1,389 @@
+Entity,Code,Year,Population,World regions according to OWID,Country Size,GDP per capita,Median Income Consumption ($/day),Lowest 10% Income Consumption ($/day)
+Albania,ALB,2023,2811615,Europe,Small,14869.22,12.84,6.13
+Angola,AGO,2023,36749852,Africa,Medium,8620.22,3.88,1.07
+Armenia,ARM,2023,2943346,Asia,Small,19230.19,7.73,3.83
+Australia,AUS,2023,26451074,Oceania,Medium,56600.44,57.72,25.06
+Austria,AUT,2023,9130386,Europe,Medium,66294.72,72.68,28.74
+Bangladesh,BGD,2023,171466945,Asia,Large,7888.16,6.01,2.53
+Belarus,BLR,2023,9115626,Europe,Medium,26731.50,18.39,10.23
+Belgium,BEL,2023,11712836,Europe,Medium,63974.25,61.04,28.73
+Belize,BLZ,2023,411073,North America,Small,11486.80,14.94,4.95
+Benin,BEN,2023,14110987,Africa,Medium,3464.29,4.20,1.94
+Bhutan,BTN,2023,786330,Asia,Small,14061.31,15.90,7.21
+Bolivia,BOL,2023,12244104,South America,Medium,9843.97,16.85,5.61
+Brazil,BRA,2023,211140678,South America,Large,19018.24,15.74,4.28
+Bulgaria,BGR,2023,6795757,Europe,Medium,31813.94,27.59,10.48
+Burkina Faso,BFA,2023,23025738,Africa,Medium,2486.43,3.37,1.55
+Burundi,BDI,2023,13689406,Africa,Medium,833.92,2.01,0.85
+Cameroon,CMR,2023,28372638,Africa,Medium,4793.56,4.99,1.49
+Canada,CAN,2023,39299053,North America,Medium,53274.91,67.25,31.09
+Central African Republic,CAF,2023,5152373,Africa,Medium,1128.55,1.92,0.65
+Chad,TCD,2023,19319025,Africa,Medium,1688.46,3.66,1.40
+Chile,CHL,2023,19658791,South America,Medium,29557.39,22.83,8.86
+China,CHN,2023,1422584878,Asia,Large,20406.73,13.39,5.74
+Colombia,COL,2023,52321104,South America,Large,18692.39,10.95,3.26
+Costa Rica,CRI,2023,5105469,North America,Medium,26292.77,18.92,6.08
+Cote d'Ivoire,CIV,2023,31165592,Africa,Medium,6045.20,4.75,2.16
+Croatia,HRV,2023,3895973,Europe,Small,39844.14,31.62,13.55
+Cyprus,CYP,2023,1344937,Europe,Small,52882.29,49.29,24.31
+Czechia,CZE,2023,10809674,Europe,Medium,50617.70,39.48,20.63
+Democratic Republic of Congo,COD,2023,105789681,Africa,Large,1277.63,1.32,0.49
+Denmark,DNK,2023,5948078,Europe,Medium,70865.44,61.03,30.69
+Dominican Republic,DOM,2023,11331213,North America,Medium,23087.93,15.67,5.29
+Ecuador,ECU,2023,17980034,South America,Medium,14472.32,12.41,3.58
+Egypt,EGY,2023,114535724,Africa,Large,15579.02,7.61,3.42
+El Salvador,SLV,2023,6309575,North America,Medium,11404.33,11.88,4.20
+Equatorial Guinea,GNQ,2023,1847501,Africa,Small,16932.77,7.13,2.77
+Estonia,EST,2023,1367143,Europe,Small,44492.12,36.88,17.09
+Ethiopia,ETH,2023,128691654,Africa,Large,2588.41,3.49,1.41
+Fiji,FJI,2023,924114,Oceania,Small,13567.47,7.16,3.37
+Finland,FIN,2023,5601133,Europe,Medium,58024.48,56.56,28.15
+France,FRA,2023,66438774,Europe,Large,55106.33,57.02,23.11
+Gambia,GMB,2023,2697797,Africa,Small,2702.32,4.86,1.74
+Georgia,GEO,2023,3807436,Asia,Small,22590.53,8.42,3.45
+Germany,DEU,2023,84548184,Europe,Large,60747.27,67.23,28.50
+Greece,GRC,2023,10242850,Europe,Medium,35956.25,27.87,11.62
+Grenada,GRD,2023,117047,North America,Small,16975.25,13.92,5.83
+Guatemala,GTM,2023,18124791,North America,Medium,12389.39,8.73,2.07
+Guinea,GIN,2023,14405424,Africa,Medium,3455.65,5.65,1.92
+Guinea-Bissau,GNB,2023,2153292,Africa,Small,2450.98,3.45,1.59
+Honduras,HND,2023,10644802,North America,Medium,6468.30,7.52,1.86
+Hungary,HUN,2023,9686418,Europe,Medium,40693.96,28.92,15.91
+Iceland,ISL,2023,387522,Europe,Small,65663.93,60.77,29.02
+India,IND,2023,1438069540,Asia,Large,8544.69,5.54,2.81
+Indonesia,IDN,2023,281190021,Asia,Large,13889.88,6.17,3.10
+Iran,IRN,2023,90608663,Asia,Large,15912.03,10.19,5.20
+Iraq,IRQ,2023,45074010,Asia,Medium,12711.06,10.89,5.45
+Israel,ISR,2023,9256261,Asia,Medium,46238.22,35.40,11.47
+Italy,ITA,2023,59499408,Europe,Large,52924.61,49.94,18.89
+Jamaica,JAM,2023,2839729,North America,Small,9577.16,14.29,5.95
+Japan,JPN,2023,124370893,Asia,Large,43238.30,42.24,17.52
+Kazakhstan,KAZ,2023,20330063,Asia,Medium,32945.85,12.24,6.77
+Kenya,KEN,2023,55338953,Africa,Large,5338.85,3.16,1.36
+Kiribati,KIR,2023,132494,Oceania,Small,2927.48,5.89,3.05
+Kosovo,OWID_KOS,2023,1699985,Europe,Small,12362.41,0.00,0.00
+Kyrgyzstan,KGZ,2023,7073476,Asia,Medium,6139.78,5.87,3.55
+Laos,LAO,2023,7664955,Asia,Medium,7775.09,5.26,2.36
+Latvia,LVA,2023,1882336,Europe,Small,36348.81,31.64,13.34
+Lebanon,LBN,2023,5773446,Asia,Medium,11474.75,8.18,4.17
+Lithuania,LTU,2023,2854061,Europe,Small,47238.10,36.83,15.77
+Malawi,MWI,2023,21104426,Africa,Medium,1687.29,1.92,0.74
+Malaysia,MYS,2023,35126249,Asia,Medium,29822.85,29.55,10.55
+Maldives,MDV,2023,525955,Asia,Small,21855.50,15.01,8.48
+Mali,MLI,2023,23769081,Africa,Medium,2347.63,3.67,1.71
+Malta,MLT,2023,532921,Europe,Small,59133.77,53.52,23.55
+Marshall Islands,MHL,2023,38803,Oceania,Small,6405.08,10.16,4.36
+Mauritania,MRT,2023,5022397,Africa,Medium,6162.21,6.06,2.60
+Mexico,MEX,2023,129739713,North America,Large,21643.97,12.49,4.90
+Moldova,MDA,2023,3067017,Europe,Small,15291.13,11.64,5.89
+Mongolia,MNG,2023,3431887,Asia,Small,15310.44,12.03,5.19
+Montenegro,MNE,2023,633503,Europe,Small,24509.94,17.78,6.28
+Mozambique,MOZ,2023,33635119,Africa,Medium,1528.89,1.42,0.50
+Nepal,NPL,2023,29694568,Asia,Medium,4763.39,8.03,3.97
+Netherlands,NLD,2023,18092473,Europe,Medium,69323.33,69.09,32.35
+Niger,NER,2023,26159817,Africa,Medium,1585.60,2.66,1.21
+Nigeria,NGA,2023,227882899,Africa,Large,5628.74,3.88,1.34
+North Macedonia,MKD,2023,1831749,Europe,Small,21990.32,15.52,4.60
+Norway,NOR,2023,5519123,Europe,Medium,91068.60,75.87,34.93
+Pakistan,PAK,2023,247504458,Asia,Large,5255.06,4.45,2.46
+Palestine,PSE,2023,5409153,Asia,Medium,5313.10,12.05,4.96
+Panama,PAN,2023,4458719,North America,Small,35863.88,17.90,5.67
+Paraguay,PRY,2023,6844101,South America,Medium,15783.12,14.28,5.15
+Peru,PER,2023,33845565,South America,Medium,15294.26,10.25,3.60
+Philippines,PHL,2023,114891152,Asia,Large,9901.06,5.67,2.69
+Poland,POL,2023,38762796,Europe,Medium,44160.86,38.24,17.75
+Portugal,PRT,2023,10430680,Europe,Medium,41288.05,32.20,13.61
+Romania,ROU,2023,19118433,Europe,Medium,39733.66,27.77,8.27
+Russia,RUS,2023,145440454,Europe,Large,36746.38,20.29,8.79
+Senegal,SEN,2023,18077527,Africa,Medium,4173.68,5.04,2.15
+Serbia,SRB,2023,6773156,Europe,Medium,24910.42,19.18,7.40
+Seychelles,SYC,2023,127910,Africa,Small,32841.43,21.00,8.29
+Sierra Leone,SLE,2023,8460469,Africa,Medium,2766.72,3.36,1.59
+Slovakia,SVK,2023,5518008,Europe,Medium,38720.48,24.71,10.63
+Slovenia,SVN,2023,2118353,Europe,Small,47433.40,48.35,25.62
+South Korea,KOR,2023,51748695,Asia,Large,48571.43,54.40,22.82
+Spain,ESP,2023,47911535,Europe,Medium,46479.09,46.34,17.40
+Sri Lanka,LKA,2023,22971566,Asia,Medium,14637.44,7.91,3.51
+Suriname,SUR,2023,628840,South America,Small,18742.59,14.44,5.21
+Sweden,SWE,2023,10551441,Europe,Medium,63611.36,55.98,23.76
+Switzerland,CHE,2023,8870520,Europe,Medium,81603.21,73.07,31.81
+Syria,SYR,2023,23594567,Asia,Medium,4454.85,4.76,1.58
+Tanzania,TZA,2023,66617556,Africa,Large,3392.69,2.96,1.17
+Thailand,THA,2023,71702397,Asia,Large,21142.66,16.25,7.14
+Togo,TGO,2023,9304289,Africa,Medium,2577.20,3.85,1.46
+Tonga,TON,2023,104565,Oceania,Small,7034.93,11.00,5.54
+Tunisia,TUN,2023,12200387,Africa,Medium,12375.34,13.04,5.83
+Turkey,TUR,2023,87270451,Asia,Large,33061.05,19.94,8.24
+Uganda,UGA,2023,48656550,Africa,Medium,2689.41,2.56,1.12
+Ukraine,UKR,2023,37732781,Europe,Medium,17092.54,13.70,7.42
+United Kingdom,GBR,1750,5888000,Europe,Medium,3620.50,4.90,
+United Kingdom,GBR,1751,5922000,Europe,Medium,3629.90,5.00,
+United Kingdom,GBR,1752,5961000,Europe,Medium,3612.80,4.80,
+United Kingdom,GBR,1753,6008000,Europe,Medium,3621.70,4.90,
+United Kingdom,GBR,1754,6052000,Europe,Medium,3639.90,4.70,
+United Kingdom,GBR,1755,6097000,Europe,Medium,3659.60,5.00,
+United Kingdom,GBR,1756,6149000,Europe,Medium,3699.80,4.80,
+United Kingdom,GBR,1757,6178000,Europe,Medium,3737.20,3.70,
+United Kingdom,GBR,1758,6196000,Europe,Medium,3759.70,3.70,
+United Kingdom,GBR,1759,6222000,Europe,Medium,3796.00,4.30,
+United Kingdom,GBR,1760,6263000,Europe,Medium,3820.90,4.30,
+United Kingdom,GBR,1761,6310000,Europe,Medium,3848.90,4.50,
+United Kingdom,GBR,1762,6339000,Europe,Medium,3859.60,4.40,
+United Kingdom,GBR,1763,6327000,Europe,Medium,3867.50,4.80,
+United Kingdom,GBR,1764,6361000,Europe,Medium,3873.10,4.30,
+United Kingdom,GBR,1765,6415000,Europe,Medium,3890.50,4.10,
+United Kingdom,GBR,1766,6449000,Europe,Medium,3878.40,4.10,
+United Kingdom,GBR,1767,6467000,Europe,Medium,3886.00,3.80,
+United Kingdom,GBR,1768,6487000,Europe,Medium,3879.60,4.20,
+United Kingdom,GBR,1769,6531000,Europe,Medium,3880.00,4.60,
+United Kingdom,GBR,1770,6580000,Europe,Medium,3874.80,4.60,
+United Kingdom,GBR,1771,6623000,Europe,Medium,3875.00,4.00,
+United Kingdom,GBR,1772,6674000,Europe,Medium,3883.10,3.90,
+United Kingdom,GBR,1773,6727000,Europe,Medium,3897.00,3.90,
+United Kingdom,GBR,1774,6776000,Europe,Medium,3882.10,3.80,
+United Kingdom,GBR,1775,6848000,Europe,Medium,3877.60,4.00,
+United Kingdom,GBR,1776,6913000,Europe,Medium,3885.10,4.00,
+United Kingdom,GBR,1777,6979000,Europe,Medium,3916.50,4.10,
+United Kingdom,GBR,1778,7050000,Europe,Medium,3937.70,3.90,
+United Kingdom,GBR,1779,7116000,Europe,Medium,3965.80,4.40,
+United Kingdom,GBR,1780,7155000,Europe,Medium,3985.90,4.50,
+United Kingdom,GBR,1781,7206000,Europe,Medium,3989.20,4.40,
+United Kingdom,GBR,1782,7231000,Europe,Medium,3987.80,4.40,
+United Kingdom,GBR,1783,7284000,Europe,Medium,3982.40,3.80,
+United Kingdom,GBR,1784,7301000,Europe,Medium,3976.40,3.70,
+United Kingdom,GBR,1785,7368000,Europe,Medium,3958.60,4.10,
+United Kingdom,GBR,1786,7434000,Europe,Medium,3958.10,4.20,
+United Kingdom,GBR,1787,7508000,Europe,Medium,3960.80,4.10,
+United Kingdom,GBR,1788,7592000,Europe,Medium,3981.90,3.90,
+United Kingdom,GBR,1789,7666000,Europe,Medium,3989.80,4.00,
+United Kingdom,GBR,1790,7762000,Europe,Medium,3985.90,4.00,
+United Kingdom,GBR,1791,7846000,Europe,Medium,4021.50,4.00,
+United Kingdom,GBR,1792,7937000,Europe,Medium,4072.10,3.90,
+United Kingdom,GBR,1793,8022000,Europe,Medium,4120.40,3.90,
+United Kingdom,GBR,1794,8101000,Europe,Medium,4162.30,3.70,
+United Kingdom,GBR,1795,8169000,Europe,Medium,4184.60,3.50,
+United Kingdom,GBR,1796,8256000,Europe,Medium,4227.60,3.40,
+United Kingdom,GBR,1797,8334000,Europe,Medium,4259.30,3.90,
+United Kingdom,GBR,1798,8435000,Europe,Medium,4305.70,4.10,
+United Kingdom,GBR,1799,8526000,Europe,Medium,4354.70,3.70,
+United Kingdom,GBR,1800,8620000,Europe,Medium,4354.10,2.80,
+United Kingdom,GBR,1801,8671000,Europe,Medium,4370.80,2.50,
+United Kingdom,GBR,1802,8731000,Europe,Medium,4385.90,3.30,
+United Kingdom,GBR,1803,8832000,Europe,Medium,4426.50,3.50,
+United Kingdom,GBR,1804,8945000,Europe,Medium,4429.20,3.30,
+United Kingdom,GBR,1805,9092000,Europe,Medium,4422.70,3.50,
+United Kingdom,GBR,1806,9232000,Europe,Medium,4440.20,4.00,
+United Kingdom,GBR,1807,9368000,Europe,Medium,4443.50,4.10,
+United Kingdom,GBR,1808,9498000,Europe,Medium,4436.20,4.00,
+United Kingdom,GBR,1809,9624000,Europe,Medium,4453.80,3.60,
+United Kingdom,GBR,1810,9738000,Europe,Medium,4433.40,3.50,
+United Kingdom,GBR,1811,9864000,Europe,Medium,4464.20,3.80,
+United Kingdom,GBR,1812,9988000,Europe,Medium,4435.60,3.30,
+United Kingdom,GBR,1813,10141000,Europe,Medium,4437.90,3.30,
+United Kingdom,GBR,1814,10274000,Europe,Medium,4424.20,3.80,
+United Kingdom,GBR,1815,10458000,Europe,Medium,4370.30,4.00,
+United Kingdom,GBR,1816,10628000,Europe,Medium,4359.30,4.30,
+United Kingdom,GBR,1817,10802000,Europe,Medium,4375.30,3.80,
+United Kingdom,GBR,1818,10957000,Europe,Medium,4374.20,3.80,
+United Kingdom,GBR,1819,11122000,Europe,Medium,4396.80,3.70,
+United Kingdom,GBR,1820,11268000,Europe,Medium,4397.40,4.10,
+United Kingdom,GBR,1821,11457000,Europe,Medium,4436.50,4.70,
+United Kingdom,GBR,1822,11652000,Europe,Medium,4440.80,5.40,
+United Kingdom,GBR,1823,11839000,Europe,Medium,4483.60,5.00,
+United Kingdom,GBR,1824,12017000,Europe,Medium,4534.70,4.60,
+United Kingdom,GBR,1825,12208000,Europe,Medium,4552.00,4.00,
+United Kingdom,GBR,1826,12374000,Europe,Medium,4585.10,4.20,
+United Kingdom,GBR,1827,12528000,Europe,Medium,4625.90,4.30,
+United Kingdom,GBR,1828,12728000,Europe,Medium,4657.20,4.40,
+United Kingdom,GBR,1829,12903000,Europe,Medium,4668.20,4.40,
+United Kingdom,GBR,1830,13074000,Europe,Medium,4686.70,4.60,
+United Kingdom,GBR,1831,13254000,Europe,Medium,4766.00,4.20,
+United Kingdom,GBR,1832,13394000,Europe,Medium,4821.70,4.50,
+United Kingdom,GBR,1833,13565000,Europe,Medium,4872.80,4.70,
+United Kingdom,GBR,1834,13760000,Europe,Medium,4947.70,5.10,
+United Kingdom,GBR,1835,13921000,Europe,Medium,5012.90,5.00,
+United Kingdom,GBR,1836,14100000,Europe,Medium,5064.00,4.50,
+United Kingdom,GBR,1837,14261000,Europe,Medium,5095.60,4.50,
+United Kingdom,GBR,1838,14416000,Europe,Medium,5118.20,4.50,
+United Kingdom,GBR,1839,14594000,Europe,Medium,5140.60,4.20,
+United Kingdom,GBR,1840,14769000,Europe,Medium,5173.20,4.20,
+United Kingdom,GBR,1841,14937000,Europe,Medium,5218.50,4.30,
+United Kingdom,GBR,1842,15073000,Europe,Medium,5302.90,4.60,
+United Kingdom,GBR,1843,15264000,Europe,Medium,5351.20,5.20,
+United Kingdom,GBR,1844,15455000,Europe,Medium,5399.80,5.20,
+United Kingdom,GBR,1845,15648000,Europe,Medium,5451.00,5.00,
+United Kingdom,GBR,1846,15841000,Europe,Medium,5508.50,4.80,
+United Kingdom,GBR,1847,16035000,Europe,Medium,5595.00,4.30,
+United Kingdom,GBR,1848,16230000,Europe,Medium,5682.60,4.90,
+United Kingdom,GBR,1849,16426000,Europe,Medium,5750.10,5.30,
+United Kingdom,GBR,1850,16622000,Europe,Medium,5818.20,5.60,
+United Kingdom,GBR,1851,16820000,Europe,Medium,5842.90,5.80,
+United Kingdom,GBR,1852,17018000,Europe,Medium,5905.00,5.80,
+United Kingdom,GBR,1853,17218000,Europe,Medium,5960.00,5.80,
+United Kingdom,GBR,1854,17418000,Europe,Medium,6007.50,5.30,
+United Kingdom,GBR,1855,17618000,Europe,Medium,6089.60,5.20,
+United Kingdom,GBR,1856,17820000,Europe,Medium,6162.50,5.20,
+United Kingdom,GBR,1857,18021000,Europe,Medium,6229.00,5.30,
+United Kingdom,GBR,1858,18223000,Europe,Medium,6264.40,5.70,
+United Kingdom,GBR,1859,18426000,Europe,Medium,6308.50,5.80,
+United Kingdom,GBR,1860,18629000,Europe,Medium,6369.40,5.70,
+United Kingdom,GBR,1861,18833000,Europe,Medium,6433.10,5.50,
+United Kingdom,GBR,1862,19073000,Europe,Medium,6498.50,5.70,
+United Kingdom,GBR,1863,19315000,Europe,Medium,6568.50,6.00,
+United Kingdom,GBR,1864,19561000,Europe,Medium,6640.70,6.30,
+United Kingdom,GBR,1865,19810000,Europe,Medium,6712.30,6.50,
+United Kingdom,GBR,1866,20062000,Europe,Medium,6830.40,6.20,
+United Kingdom,GBR,1867,20317000,Europe,Medium,7000.90,5.80,
+United Kingdom,GBR,1868,20575000,Europe,Medium,7133.90,5.80,
+United Kingdom,GBR,1869,20837000,Europe,Medium,7260.00,6.10,
+United Kingdom,GBR,1870,21102000,Europe,Medium,7385.20,6.30,
+United Kingdom,GBR,1871,21376000,Europe,Medium,7504.70,6.40,
+United Kingdom,GBR,1872,21669000,Europe,Medium,7620.90,6.50,
+United Kingdom,GBR,1873,21966000,Europe,Medium,7712.00,6.60,
+United Kingdom,GBR,1874,22266000,Europe,Medium,7781.50,6.90,
+United Kingdom,GBR,1875,22571000,Europe,Medium,7771.50,6.90,
+United Kingdom,GBR,1876,22880000,Europe,Medium,7774.10,6.90,
+United Kingdom,GBR,1877,23194000,Europe,Medium,7796.10,6.80,
+United Kingdom,GBR,1878,23511000,Europe,Medium,7826.80,6.80,
+United Kingdom,GBR,1879,23833000,Europe,Medium,7852.30,7.00,
+United Kingdom,GBR,1880,24159000,Europe,Medium,7862.50,6.80,
+United Kingdom,GBR,1881,24474000,Europe,Medium,7862.40,6.90,
+United Kingdom,GBR,1882,24797000,Europe,Medium,7860.40,6.90,
+United Kingdom,GBR,1883,25013000,Europe,Medium,7898.20,7.00,
+United Kingdom,GBR,1884,25292000,Europe,Medium,7983.90,7.10,
+United Kingdom,GBR,1885,25574000,Europe,Medium,8039.10,7.30,
+United Kingdom,GBR,1886,25859000,Europe,Medium,8083.10,7.30,
+United Kingdom,GBR,1887,26148000,Europe,Medium,8142.10,7.40,
+United Kingdom,GBR,1888,26440000,Europe,Medium,8147.70,7.50,
+United Kingdom,GBR,1889,26735000,Europe,Medium,8154.80,7.50,
+United Kingdom,GBR,1890,27003000,Europe,Medium,8215.30,7.80,
+United Kingdom,GBR,1891,27304000,Europe,Medium,8302.10,7.80,
+United Kingdom,GBR,1892,27618000,Europe,Medium,8390.10,7.80,
+United Kingdom,GBR,1893,27936000,Europe,Medium,8457.80,7.90,
+United Kingdom,GBR,1894,28257000,Europe,Medium,8546.20,8.10,
+United Kingdom,GBR,1895,28582000,Europe,Medium,8662.30,8.20,
+United Kingdom,GBR,1896,28911000,Europe,Medium,8749.50,8.30,
+United Kingdom,GBR,1897,29344000,Europe,Medium,8883.70,8.30,
+United Kingdom,GBR,1898,29580000,Europe,Medium,9042.40,8.50,
+United Kingdom,GBR,1899,29921000,Europe,Medium,9145.70,8.50,
+United Kingdom,GBR,1900,30253000,Europe,Medium,9233.00,8.40,
+United Kingdom,GBR,1901,30594000,Europe,Medium,9315.60,8.40,
+United Kingdom,GBR,1902,30907000,Europe,Medium,9414.20,8.40,
+United Kingdom,GBR,1903,31202000,Europe,Medium,9483.30,8.50,
+United Kingdom,GBR,1904,31522000,Europe,Medium,9476.10,8.50,
+United Kingdom,GBR,1905,31844000,Europe,Medium,9494.10,8.50,
+United Kingdom,GBR,1906,32171000,Europe,Medium,9523.20,8.60,
+United Kingdom,GBR,1907,32653000,Europe,Medium,9570.40,8.70,
+United Kingdom,GBR,1908,32834000,Europe,Medium,9652.50,8.70,
+United Kingdom,GBR,1909,33170000,Europe,Medium,9772.70,8.70,
+United Kingdom,GBR,1910,33382000,Europe,Medium,9877.90,8.70,
+United Kingdom,GBR,1911,33704000,Europe,Medium,10017.70,8.80,
+United Kingdom,GBR,1912,33852000,Europe,Medium,10159.50,8.70,
+United Kingdom,GBR,1913,34055000,Europe,Medium,10342.20,9.10,
+United Kingdom,GBR,1914,34444000,Europe,Medium,10534.30,9.20,
+United Kingdom,GBR,1915,34818000,Europe,Medium,10609.90,9.50,
+United Kingdom,GBR,1916,34830000,Europe,Medium,10584.10,9.10,
+United Kingdom,GBR,1917,34831000,Europe,Medium,10431.70,9.30,
+United Kingdom,GBR,1918,34805000,Europe,Medium,10282.00,9.50,
+United Kingdom,GBR,1919,34634000,Europe,Medium,10146.40,9.80,
+United Kingdom,GBR,1920,34968000,Europe,Medium,9999.80,9.80,
+United Kingdom,GBR,1921,35274000,Europe,Medium,9874.30,10.00,
+United Kingdom,GBR,1922,35519000,Europe,Medium,9716.60,9.40,
+United Kingdom,GBR,1923,35745000,Europe,Medium,9611.80,9.20,
+United Kingdom,GBR,1924,36065000,Europe,Medium,9602.70,9.40,
+United Kingdom,GBR,1925,36198000,Europe,Medium,9699.90,9.50,
+United Kingdom,GBR,1926,36383000,Europe,Medium,9893.00,9.30,
+United Kingdom,GBR,1927,36562000,Europe,Medium,9981.80,9.70,
+United Kingdom,GBR,1928,36796000,Europe,Medium,10041.90,9.60,
+United Kingdom,GBR,1929,36923000,Europe,Medium,10093.20,9.80,
+United Kingdom,GBR,1930,37172000,Europe,Medium,10174.30,9.90,
+United Kingdom,GBR,1931,37395000,Europe,Medium,10333.40,10.20,
+United Kingdom,GBR,1932,37619000,Europe,Medium,10468.00,10.20,
+United Kingdom,GBR,1933,37782000,Europe,Medium,10637.00,10.40,
+United Kingdom,GBR,1934,37913000,Europe,Medium,10781.50,10.50,
+United Kingdom,GBR,1935,38107000,Europe,Medium,10993.80,10.60,
+United Kingdom,GBR,1936,38322000,Europe,Medium,11388.90,10.80,
+United Kingdom,GBR,1937,38552000,Europe,Medium,11928.00,10.70,
+United Kingdom,GBR,1938,38749000,Europe,Medium,12457.20,11.00,
+United Kingdom,GBR,1939,38973000,Europe,Medium,12934.10,10.80,
+United Kingdom,GBR,1940,39339000,Europe,Medium,13292.60,11.90,
+United Kingdom,GBR,1941,39145000,Europe,Medium,13519.80,11.70,
+United Kingdom,GBR,1942,39371000,Europe,Medium,13672.80,12.30,
+United Kingdom,GBR,1943,39803000,Europe,Medium,13792.20,13.10,
+United Kingdom,GBR,1944,40000000,Europe,Medium,13892.50,13.00,
+United Kingdom,GBR,1945,40214000,Europe,Medium,13910.80,12.50,
+United Kingdom,GBR,1946,40227000,Europe,Medium,13833.50,12.70,
+United Kingdom,GBR,1947,40549000,Europe,Medium,13802.10,12.70,
+United Kingdom,GBR,1948,40950000,Europe,Medium,13780.70,12.90,
+United Kingdom,GBR,1949,41214000,Europe,Medium,13924.90,13.10,
+United Kingdom,GBR,1950,41421000,Europe,Medium,14216.80,13.20,
+United Kingdom,GBR,1951,41228000,Europe,Medium,14607.70,13.20,
+United Kingdom,GBR,1952,41367000,Europe,Medium,15049.10,12.90,
+United Kingdom,GBR,1953,41515000,Europe,Medium,15485.10,13.20,
+United Kingdom,GBR,1954,41673000,Europe,Medium,15896.40,13.80,
+United Kingdom,GBR,1955,41838000,Europe,Medium,16332.10,14.20,
+United Kingdom,GBR,1956,42059000,Europe,Medium,16808.40,14.60,
+United Kingdom,GBR,1957,42296000,Europe,Medium,17300.00,14.90,
+United Kingdom,GBR,1958,42494000,Europe,Medium,17709.10,15.00,
+United Kingdom,GBR,1959,42763000,Europe,Medium,18139.70,15.30,
+United Kingdom,GBR,1960,43146000,Europe,Medium,18614.70,16.00,
+United Kingdom,GBR,1961,43566000,Europe,Medium,19101.80,16.60,
+United Kingdom,GBR,1962,44006000,Europe,Medium,19585.70,16.50,
+United Kingdom,GBR,1963,44311000,Europe,Medium,20105.10,16.80,
+United Kingdom,GBR,1964,44648000,Europe,Medium,20678.50,17.70,
+United Kingdom,GBR,1965,44979000,Europe,Medium,21182.50,18.10,
+United Kingdom,GBR,1966,45265000,Europe,Medium,21713.20,18.60,
+United Kingdom,GBR,1967,45562000,Europe,Medium,22320.50,18.80,
+United Kingdom,GBR,1968,45791000,Europe,Medium,22941.70,19.60,
+United Kingdom,GBR,1969,46014000,Europe,Medium,23632.80,20.10,
+United Kingdom,GBR,1970,46167000,Europe,Medium,24214.70,21.30,
+United Kingdom,GBR,1971,46412000,Europe,Medium,24728.90,21.80,
+United Kingdom,GBR,1972,46572000,Europe,Medium,25275.80,22.90,
+United Kingdom,GBR,1973,46686000,Europe,Medium,25774.70,23.90,
+United Kingdom,GBR,1974,46683000,Europe,Medium,26362.70,24.60,
+United Kingdom,GBR,1975,46674000,Europe,Medium,27001.00,25.90,
+United Kingdom,GBR,1976,46660000,Europe,Medium,27484.70,26.00,
+United Kingdom,GBR,1977,46640000,Europe,Medium,27835.70,24.90,
+United Kingdom,GBR,1978,46638000,Europe,Medium,28079.20,26.30,
+United Kingdom,GBR,1979,46698000,Europe,Medium,28535.50,27.50,
+United Kingdom,GBR,1980,46787000,Europe,Medium,29108.40,29.00,
+United Kingdom,GBR,1981,46821000,Europe,Medium,29733.10,29.50,
+United Kingdom,GBR,1982,46777000,Europe,Medium,30389.80,30.00,
+United Kingdom,GBR,1983,46814000,Europe,Medium,31111.30,31.00,
+United Kingdom,GBR,1984,46912000,Europe,Medium,31938.10,31.60,
+United Kingdom,GBR,1985,47057000,Europe,Medium,32936.10,32.80,
+United Kingdom,GBR,1986,47188000,Europe,Medium,33982.40,34.30,
+United Kingdom,GBR,1987,47300000,Europe,Medium,34898.80,35.90,
+United Kingdom,GBR,1988,47412000,Europe,Medium,35679.00,37.80,
+United Kingdom,GBR,1989,47553000,Europe,Medium,36479.30,39.30,
+United Kingdom,GBR,1990,47699000,Europe,Medium,37294.00,40.60,
+United Kingdom,GBR,1991,47875000,Europe,Medium,38096.00,40.70,
+United Kingdom,GBR,1992,47998000,Europe,Medium,38804.30,41.40,
+United Kingdom,GBR,1993,48102000,Europe,Medium,39420.00,41.60,
+United Kingdom,GBR,1994,48229000,Europe,Medium,40093.90,42.30,
+United Kingdom,GBR,1995,48383000,Europe,Medium,40902.10,42.60,
+United Kingdom,GBR,1996,48519000,Europe,Medium,41908.90,43.10,
+United Kingdom,GBR,1997,48665000,Europe,Medium,43046.50,44.20,
+United Kingdom,GBR,1998,48821000,Europe,Medium,44204.50,45.80,
+United Kingdom,GBR,1999,49033000,Europe,Medium,45380.10,47.20,
+United Kingdom,GBR,2000,49233000,Europe,Medium,46555.80,49.00,
+United Kingdom,GBR,2001,49450000,Europe,Medium,47741.00,50.90,
+United Kingdom,GBR,2002,49679000,Europe,Medium,48881.90,51.80,
+United Kingdom,GBR,2003,49926000,Europe,Medium,49989.10,52.80,
+United Kingdom,GBR,2004,50195000,Europe,Large,50842.50,54.40,
+United Kingdom,GBR,2005,50606000,Europe,Large,51278.80,55.70,
+United Kingdom,GBR,2006,50965000,Europe,Large,51651.70,57.00,
+United Kingdom,GBR,2007,51381000,Europe,Large,51942.10,58.50,
+United Kingdom,GBR,2008,51816000,Europe,Large,52126.10,58.40,
+United Kingdom,GBR,2009,52196000,Europe,Large,52289.10,57.20,
+United Kingdom,GBR,2010,52642000,Europe,Large,52495.90,56.60,
+United Kingdom,GBR,2011,53107000,Europe,Large,52713.70,55.40,
+United Kingdom,GBR,2012,53494000,Europe,Large,52872.20,54.70,
+United Kingdom,GBR,2023,68682907,Europe,Large,52872.20,54.65,22.14
+United States,USA,2023,343477286,North America,Large,74577.51,70.00,23.35
+Uruguay,URY,2023,3388029,South America,Small,31019.31,25.88,8.03
+Uzbekistan,UZB,2023,35652264,Asia,Medium,10007.69,12.55,5.78
+Vanuatu,VUT,2023,320377,Oceania,Small,3512.07,5.17,2.16
+Vietnam,VNM,2023,100352143,Asia,Large,12930.26,13.32,5.07
+Zambia,ZMB,2023,20723923,Africa,Medium,3585.12,1.68,0.50
+Zimbabwe,ZWE,2023,16340778,Africa,Medium,3294.81,3.05,1.10
