@@ -143,6 +143,22 @@ class ConsumptionVsGDP(Scene):
 
         ### Draw dot by dot the sequence for the UK from 1750 to 2012
         ### Reduce opacity of plotted dots to 0.3
+        gdp_median_dots_faded = self.generate_dots(
+            df,
+            ax,
+            "GDP per capita",
+            "Median Income Consumption ($/day)",
+            fill_opacity=0.3,
+        )
+
+        ### Transition to faded dots
+        self.play(
+            *[
+                Transform(gdp_median_dots[i], gdp_median_dots_faded[i])
+                for i in range(len(gdp_median_dots))
+            ],
+            run_time=1.0,
+        )
 
         ### Create ValueTracker for year animation
         year_tracker = ValueTracker(1750)
@@ -179,7 +195,7 @@ class ConsumptionVsGDP(Scene):
                         ax.c2p(x_val, y_val),
                         color=colour_map[region],
                         radius=radius_map[size],
-                        fill_opacity=0.3,  # Lower opacity for trail dots
+                        fill_opacity=0.4,  # Slightly more transparent for trail dots
                     )
                 )
 
@@ -191,11 +207,11 @@ class ConsumptionVsGDP(Scene):
             year_tracker.animate.set_value(2012),
             LaggedStart(
                 *[Create(d) for d in uk_dots_list],
-                lag_ratio=100.0
+                lag_ratio=120.0
                 / len(uk_dots_list),  # Spread evenly over animation time
                 rate_func=rate_functions.linear,
             ),
-            run_time=12.0,
+            run_time=16.0,
             rate_func=rate_functions.linear,
         )
         self.wait()
@@ -203,6 +219,25 @@ class ConsumptionVsGDP(Scene):
         ### Remove the dynamic elements before continuing
         self.remove(uk_dynamic_dot, year_text_display)
         self.play(*[Unwrite(d) for d in uk_dots_list], run_time=1.0)
+
+        ### Transition to original dots
+        gdp_median_dots_unfaded = self.generate_dots(
+            df,
+            ax,
+            "GDP per capita",
+            "Median Income Consumption ($/day)",
+            fill_opacity=0.8,
+        )
+
+        ### Transition to unfaded dots
+        self.play(
+            *[
+                Transform(gdp_median_dots[i], gdp_median_dots_unfaded[i])
+                for i in range(len(gdp_median_dots))
+            ],
+            run_time=1.0,
+        )
+        self.wait(2)
 
         ### Draw red and green rectangles in bottom left and top right sections of graph
         gdp_median_rect_list = []
@@ -391,6 +426,7 @@ class ConsumptionVsGDP(Scene):
         ax: Axes,
         x_col: str,
         y_col: str,
+        fill_opacity: float = 0.8,
         uk_sequence: bool = False,
     ):
         dots = []
@@ -410,7 +446,7 @@ class ConsumptionVsGDP(Scene):
                         ax.c2p(x_val, y_val),
                         color=colour_map[region],
                         radius=radius_map[size],
-                        fill_opacity=0.8,
+                        fill_opacity=fill_opacity,
                     )
                 )
         else:
@@ -436,7 +472,7 @@ class ConsumptionVsGDP(Scene):
                         ax.c2p(x_val, y_val),
                         color=colour,
                         radius=radius,
-                        fill_opacity=0.8,
+                        fill_opacity=fill_opacity,
                     )
                 )
         return dots
