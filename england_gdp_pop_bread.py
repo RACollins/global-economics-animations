@@ -81,6 +81,56 @@ def make_axes(
     return ax
 
 
+def generate_axes(
+    scene,
+    x_range: list,
+    y_range: list,
+    x_numbers_to_include: list,
+    y_numbers_to_include: list,
+    log_y: bool,
+    animate_axes: bool,
+    x_axis_label: str,
+    y_axis_label: str,
+    font_size: int,
+    x_length: int,
+    y_length: int,
+    position: float = None,
+    scale: float = None,
+) -> tuple:
+    ax = make_axes(
+        x_range=x_range,
+        y_range=y_range,
+        x_numbers_to_include=x_numbers_to_include,
+        y_numbers_to_include=y_numbers_to_include,
+        log_y=log_y,
+        x_length=x_length,
+        y_length=y_length,
+    )
+
+    if position:
+        ax = ax.move_to(RIGHT * position)
+    if scale:
+        ax = ax.scale(scale)
+
+    ### Add axis labels
+    x_label = ax.get_x_axis_label(Text(x_axis_label, font_size=font_size, color=BLACK))
+    y_label = ax.get_y_axis_label(Text(y_axis_label, font_size=font_size, color=BLACK))
+
+    if animate_axes:
+        ### Animate the creation of Axes
+        scene.play(Write(ax))
+        scene.play(Write(x_label))
+        scene.play(Write(y_label))
+        scene.wait()  # wait for 1 second
+    else:
+        ### Just generate without animation
+        scene.add(ax)
+        scene.add(x_label)
+        scene.add(y_label)
+
+    return ax, x_label, y_label
+
+
 ###############
 ### Classes ###
 ###############
@@ -102,7 +152,8 @@ class GDP1300to1500(Scene):
         df = df.loc[(df["Year"] >= start_year) & (df["Year"] <= end_year)]
 
         ### Generate axes and labels for gdp and spend
-        ax, x_label, y_label = self.generate_axes(
+        ax, x_label, y_label = generate_axes(
+            scene=self,
             x_range=[start_year, end_year, 50],
             y_range=[0, 5, 1],
             x_numbers_to_include=list(range(start_year, end_year, 50)),
@@ -131,59 +182,6 @@ class GDP1300to1500(Scene):
         )
         self.wait()
 
-    def generate_axes(
-        self,
-        x_range: list,
-        y_range: list,
-        x_numbers_to_include: list,
-        y_numbers_to_include: list,
-        log_y: bool,
-        animate_axes: bool,
-        x_axis_label: str,
-        y_axis_label: str,
-        font_size: int,
-        x_length: int,
-        y_length: int,
-        position: float = None,
-        scale: float = None,
-    ) -> tuple:
-        ax = make_axes(
-            x_range=x_range,
-            y_range=y_range,
-            x_numbers_to_include=x_numbers_to_include,
-            y_numbers_to_include=y_numbers_to_include,
-            log_y=log_y,
-            x_length=x_length,
-            y_length=y_length,
-        )
-
-        if position:
-            ax = ax.move_to(RIGHT * position)
-        if scale:
-            ax = ax.scale(scale)
-
-        ### Add axis labels
-        x_label = ax.get_x_axis_label(
-            Text(x_axis_label, font_size=font_size, color=BLACK)
-        )
-        y_label = ax.get_y_axis_label(
-            Text(y_axis_label, font_size=font_size, color=BLACK)
-        )
-
-        if animate_axes:
-            ### Animate the creation of Axes
-            self.play(Write(ax))
-            self.play(Write(x_label))
-            self.play(Write(y_label))
-            self.wait()  # wait for 1 second
-        else:
-            ### Just generate without animation
-            self.add(ax)
-            self.add(x_label)
-            self.add(y_label)
-
-        return ax, x_label, y_label
-
 
 class Pop1300to1500(Scene):
 
@@ -200,7 +198,8 @@ class Pop1300to1500(Scene):
         df["Population (England)"] = df["Population (England)"] / 1000000
 
         ### Generate axes and labels for gdp and spend
-        ax, x_label, y_label = self.generate_axes(
+        ax, x_label, y_label = generate_axes(
+            scene=self,
             x_range=[start_year, end_year, 50],
             y_range=[0, 5, 1],
             x_numbers_to_include=list(range(start_year, end_year, 50)),
@@ -229,59 +228,6 @@ class Pop1300to1500(Scene):
         )
         self.wait()
 
-    def generate_axes(
-        self,
-        x_range: list,
-        y_range: list,
-        x_numbers_to_include: list,
-        y_numbers_to_include: list,
-        log_y: bool,
-        animate_axes: bool,
-        x_axis_label: str,
-        y_axis_label: str,
-        font_size: int,
-        x_length: int,
-        y_length: int,
-        position: float = None,
-        scale: float = None,
-    ) -> tuple:
-        ax = make_axes(
-            x_range=x_range,
-            y_range=y_range,
-            x_numbers_to_include=x_numbers_to_include,
-            y_numbers_to_include=y_numbers_to_include,
-            log_y=log_y,
-            x_length=x_length,
-            y_length=y_length,
-        )
-
-        if position:
-            ax = ax.move_to(RIGHT * position)
-        if scale:
-            ax = ax.scale(scale)
-
-        ### Add axis labels
-        x_label = ax.get_x_axis_label(
-            Text(x_axis_label, font_size=font_size, color=BLACK)
-        )
-        y_label = ax.get_y_axis_label(
-            Text(y_axis_label, font_size=font_size, color=BLACK)
-        )
-
-        if animate_axes:
-            ### Animate the creation of Axes
-            self.play(Write(ax))
-            self.play(Write(x_label))
-            self.play(Write(y_label))
-            self.wait()  # wait for 1 second
-        else:
-            ### Just generate without animation
-            self.add(ax)
-            self.add(x_label)
-            self.add(y_label)
-
-        return ax, x_label, y_label
-
 
 class GDPperCapita1300to1500(Scene):
 
@@ -295,7 +241,8 @@ class GDPperCapita1300to1500(Scene):
         df = df.loc[(df["Year"] >= start_year) & (df["Year"] <= end_year)]
 
         ### Generate axes and labels for gdp and spend
-        ax, x_label, y_label = self.generate_axes(
+        ax, x_label, y_label = generate_axes(
+            scene=self,
             x_range=[start_year, end_year, 50],
             y_range=[0, 1500, 200],
             x_numbers_to_include=list(range(start_year, end_year, 50)),
@@ -324,59 +271,6 @@ class GDPperCapita1300to1500(Scene):
         )
         self.wait()
 
-    def generate_axes(
-        self,
-        x_range: list,
-        y_range: list,
-        x_numbers_to_include: list,
-        y_numbers_to_include: list,
-        log_y: bool,
-        animate_axes: bool,
-        x_axis_label: str,
-        y_axis_label: str,
-        font_size: int,
-        x_length: int,
-        y_length: int,
-        position: float = None,
-        scale: float = None,
-    ) -> tuple:
-        ax = make_axes(
-            x_range=x_range,
-            y_range=y_range,
-            x_numbers_to_include=x_numbers_to_include,
-            y_numbers_to_include=y_numbers_to_include,
-            log_y=log_y,
-            x_length=x_length,
-            y_length=y_length,
-        )
-
-        if position:
-            ax = ax.move_to(RIGHT * position)
-        if scale:
-            ax = ax.scale(scale)
-
-        ### Add axis labels
-        x_label = ax.get_x_axis_label(
-            Text(x_axis_label, font_size=font_size, color=BLACK)
-        )
-        y_label = ax.get_y_axis_label(
-            Text(y_axis_label, font_size=font_size, color=BLACK)
-        )
-
-        if animate_axes:
-            ### Animate the creation of Axes
-            self.play(Write(ax))
-            self.play(Write(x_label))
-            self.play(Write(y_label))
-            self.wait()  # wait for 1 second
-        else:
-            ### Just generate without animation
-            self.add(ax)
-            self.add(x_label)
-            self.add(y_label)
-
-        return ax, x_label, y_label
-
 
 class GDPperCapita1800to2000(Scene):
 
@@ -390,7 +284,8 @@ class GDPperCapita1800to2000(Scene):
         df = df.loc[(df["Year"] >= start_year) & (df["Year"] <= end_year)]
 
         ### Generate axes and labels for gdp and spend
-        ax, x_label, y_label = self.generate_axes(
+        ax, x_label, y_label = generate_axes(
+            scene=self,
             x_range=[start_year, end_year, 50],
             y_range=[3, 5, 1],
             x_numbers_to_include=list(range(start_year, end_year, 50)),
@@ -419,59 +314,6 @@ class GDPperCapita1800to2000(Scene):
         )
         self.wait()
 
-    def generate_axes(
-        self,
-        x_range: list,
-        y_range: list,
-        x_numbers_to_include: list,
-        y_numbers_to_include: list,
-        log_y: bool,
-        animate_axes: bool,
-        x_axis_label: str,
-        y_axis_label: str,
-        font_size: int,
-        x_length: int,
-        y_length: int,
-        position: float = None,
-        scale: float = None,
-    ) -> tuple:
-        ax = make_axes(
-            x_range=x_range,
-            y_range=y_range,
-            x_numbers_to_include=x_numbers_to_include,
-            y_numbers_to_include=y_numbers_to_include,
-            log_y=log_y,
-            x_length=x_length,
-            y_length=y_length,
-        )
-
-        if position:
-            ax = ax.move_to(RIGHT * position)
-        if scale:
-            ax = ax.scale(scale)
-
-        ### Add axis labels
-        x_label = ax.get_x_axis_label(
-            Text(x_axis_label, font_size=font_size, color=BLACK)
-        )
-        y_label = ax.get_y_axis_label(
-            Text(y_axis_label, font_size=font_size, color=BLACK)
-        )
-
-        if animate_axes:
-            ### Animate the creation of Axes
-            self.play(Write(ax))
-            self.play(Write(x_label))
-            self.play(Write(y_label))
-            self.wait()  # wait for 1 second
-        else:
-            ### Just generate without animation
-            self.add(ax)
-            self.add(x_label)
-            self.add(y_label)
-
-        return ax, x_label, y_label
-    
 
 class ValueInBread1800to2000(Scene):
 
@@ -485,7 +327,8 @@ class ValueInBread1800to2000(Scene):
         df = df.loc[(df["Year"] >= start_year) & (df["Year"] <= end_year)]
 
         ### Generate axes and labels for gdp and spend
-        ax, x_label, y_label = self.generate_axes(
+        ax, x_label, y_label = generate_axes(
+            scene=self,
             x_range=[start_year, end_year, 50],
             y_range=[0, 6, 1],
             x_numbers_to_include=list(range(start_year, end_year, 50)),
@@ -514,59 +357,6 @@ class ValueInBread1800to2000(Scene):
         )
         self.wait()
 
-    def generate_axes(
-        self,
-        x_range: list,
-        y_range: list,
-        x_numbers_to_include: list,
-        y_numbers_to_include: list,
-        log_y: bool,
-        animate_axes: bool,
-        x_axis_label: str,
-        y_axis_label: str,
-        font_size: int,
-        x_length: int,
-        y_length: int,
-        position: float = None,
-        scale: float = None,
-    ) -> tuple:
-        ax = make_axes(
-            x_range=x_range,
-            y_range=y_range,
-            x_numbers_to_include=x_numbers_to_include,
-            y_numbers_to_include=y_numbers_to_include,
-            log_y=log_y,
-            x_length=x_length,
-            y_length=y_length,
-        )
-
-        if position:
-            ax = ax.move_to(RIGHT * position)
-        if scale:
-            ax = ax.scale(scale)
-
-        ### Add axis labels
-        x_label = ax.get_x_axis_label(
-            Text(x_axis_label, font_size=font_size, color=BLACK)
-        )
-        y_label = ax.get_y_axis_label(
-            Text(y_axis_label, font_size=font_size, color=BLACK)
-        )
-
-        if animate_axes:
-            ### Animate the creation of Axes
-            self.play(Write(ax))
-            self.play(Write(x_label))
-            self.play(Write(y_label))
-            self.wait()  # wait for 1 second
-        else:
-            ### Just generate without animation
-            self.add(ax)
-            self.add(x_label)
-            self.add(y_label)
-
-        return ax, x_label, y_label
-
 
 class Population1800to2000(Scene):
 
@@ -583,7 +373,8 @@ class Population1800to2000(Scene):
         df["Population (England)"] = df["Population (England)"] / 1000000
 
         ### Generate axes and labels for gdp and spend
-        ax, x_label, y_label = self.generate_axes(
+        ax, x_label, y_label = generate_axes(
+            scene=self,
             x_range=[start_year, end_year, 50],
             y_range=[0, 50, 10],
             x_numbers_to_include=list(range(start_year, end_year, 50)),
@@ -612,59 +403,6 @@ class Population1800to2000(Scene):
         )
         self.wait()
 
-    def generate_axes(
-        self,
-        x_range: list,
-        y_range: list,
-        x_numbers_to_include: list,
-        y_numbers_to_include: list,
-        log_y: bool,
-        animate_axes: bool,
-        x_axis_label: str,
-        y_axis_label: str,
-        font_size: int,
-        x_length: int,
-        y_length: int,
-        position: float = None,
-        scale: float = None,
-    ) -> tuple:
-        ax = make_axes(
-            x_range=x_range,
-            y_range=y_range,
-            x_numbers_to_include=x_numbers_to_include,
-            y_numbers_to_include=y_numbers_to_include,
-            log_y=log_y,
-            x_length=x_length,
-            y_length=y_length,
-        )
-
-        if position:
-            ax = ax.move_to(RIGHT * position)
-        if scale:
-            ax = ax.scale(scale)
-
-        ### Add axis labels
-        x_label = ax.get_x_axis_label(
-            Text(x_axis_label, font_size=font_size, color=BLACK)
-        )
-        y_label = ax.get_y_axis_label(
-            Text(y_axis_label, font_size=font_size, color=BLACK)
-        )
-
-        if animate_axes:
-            ### Animate the creation of Axes
-            self.play(Write(ax))
-            self.play(Write(x_label))
-            self.play(Write(y_label))
-            self.wait()  # wait for 1 second
-        else:
-            ### Just generate without animation
-            self.add(ax)
-            self.add(x_label)
-            self.add(y_label)
-
-        return ax, x_label, y_label
-
 
 class WeatYield1200to2000(Scene):
 
@@ -678,7 +416,8 @@ class WeatYield1200to2000(Scene):
         df = df.loc[(df["Year"] >= start_year) & (df["Year"] <= end_year)]
 
         ### Generate axes and labels
-        ax, x_label, y_label = self.generate_axes(
+        ax, x_label, y_label = generate_axes(
+            scene=self,
             x_range=[start_year, end_year, 100],
             y_range=[0, 7000, 1000],
             x_numbers_to_include=list(range(start_year, end_year, 200)),
@@ -707,59 +446,6 @@ class WeatYield1200to2000(Scene):
         )
         self.wait()
 
-    def generate_axes(
-        self,
-        x_range: list,
-        y_range: list,
-        x_numbers_to_include: list,
-        y_numbers_to_include: list,
-        log_y: bool,
-        animate_axes: bool,
-        x_axis_label: str,
-        y_axis_label: str,
-        font_size: int,
-        x_length: int,
-        y_length: int,
-        position: float = None,
-        scale: float = None,
-    ) -> tuple:
-        ax = make_axes(
-            x_range=x_range,
-            y_range=y_range,
-            x_numbers_to_include=x_numbers_to_include,
-            y_numbers_to_include=y_numbers_to_include,
-            log_y=log_y,
-            x_length=x_length,
-            y_length=y_length,
-        )
-
-        if position:
-            ax = ax.move_to(RIGHT * position)
-        if scale:
-            ax = ax.scale(scale)
-
-        ### Add axis labels
-        x_label = ax.get_x_axis_label(
-            Text(x_axis_label, font_size=font_size, color=BLACK)
-        )
-        y_label = ax.get_y_axis_label(
-            Text(y_axis_label, font_size=font_size, color=BLACK)
-        )
-
-        if animate_axes:
-            ### Animate the creation of Axes
-            self.play(Write(ax))
-            self.play(Write(x_label))
-            self.play(Write(y_label))
-            self.wait()  # wait for 1 second
-        else:
-            ### Just generate without animation
-            self.add(ax)
-            self.add(x_label)
-            self.add(y_label)
-
-        return ax, x_label, y_label
-
 
 class MenInAgriculture1200to2000(Scene):
 
@@ -778,7 +464,8 @@ class MenInAgriculture1200to2000(Scene):
         )
 
         ### Generate axes and labels
-        ax, x_label, y_label = self.generate_axes(
+        ax, x_label, y_label = generate_axes(
+            scene=self,
             x_range=[start_year, end_year, 100],
             y_range=[0, 100, 10],
             x_numbers_to_include=list(range(start_year, end_year, 200)),
@@ -807,59 +494,6 @@ class MenInAgriculture1200to2000(Scene):
         )
         self.wait()
 
-    def generate_axes(
-        self,
-        x_range: list,
-        y_range: list,
-        x_numbers_to_include: list,
-        y_numbers_to_include: list,
-        log_y: bool,
-        animate_axes: bool,
-        x_axis_label: str,
-        y_axis_label: str,
-        font_size: int,
-        x_length: int,
-        y_length: int,
-        position: float = None,
-        scale: float = None,
-    ) -> tuple:
-        ax = make_axes(
-            x_range=x_range,
-            y_range=y_range,
-            x_numbers_to_include=x_numbers_to_include,
-            y_numbers_to_include=y_numbers_to_include,
-            log_y=log_y,
-            x_length=x_length,
-            y_length=y_length,
-        )
-
-        if position:
-            ax = ax.move_to(RIGHT * position)
-        if scale:
-            ax = ax.scale(scale)
-
-        ### Add axis labels
-        x_label = ax.get_x_axis_label(
-            Text(x_axis_label, font_size=font_size, color=BLACK)
-        )
-        y_label = ax.get_y_axis_label(
-            Text(y_axis_label, font_size=font_size, color=BLACK)
-        )
-
-        if animate_axes:
-            ### Animate the creation of Axes
-            self.play(Write(ax))
-            self.play(Write(x_label))
-            self.play(Write(y_label))
-            self.wait()  # wait for 1 second
-        else:
-            ### Just generate without animation
-            self.add(ax)
-            self.add(x_label)
-            self.add(y_label)
-
-        return ax, x_label, y_label
-
 
 class MenInAgricultureTotal1800to2000(Scene):
 
@@ -873,7 +507,8 @@ class MenInAgricultureTotal1800to2000(Scene):
         df = df.loc[(df["Year"] >= start_year) & (df["Year"] <= end_year)]
 
         ### Generate axes and labels
-        ax, x_label, y_label = self.generate_axes(
+        ax, x_label, y_label = generate_axes(
+            scene=self,
             x_range=[start_year, end_year, 50],
             y_range=[0, 4000, 500],
             x_numbers_to_include=list(range(start_year, end_year, 50)),
@@ -902,58 +537,91 @@ class MenInAgricultureTotal1800to2000(Scene):
         )
         self.wait()
 
-    def generate_axes(
-        self,
-        x_range: list,
-        y_range: list,
-        x_numbers_to_include: list,
-        y_numbers_to_include: list,
-        log_y: bool,
-        animate_axes: bool,
-        x_axis_label: str,
-        y_axis_label: str,
-        font_size: int,
-        x_length: int,
-        y_length: int,
-        position: float = None,
-        scale: float = None,
-    ) -> tuple:
-        ax = make_axes(
-            x_range=x_range,
-            y_range=y_range,
-            x_numbers_to_include=x_numbers_to_include,
-            y_numbers_to_include=y_numbers_to_include,
-            log_y=log_y,
-            x_length=x_length,
-            y_length=y_length,
+
+class DayWages1300to1400(Scene):
+
+    def construct(self):
+        ### Get data
+        df = get_multi_chart_data()
+
+        ### Limit to time range
+        start_year = 1300
+        end_year = 1400
+        df = df.loc[(df["Year"] >= start_year) & (df["Year"] <= end_year)]
+
+        ### Generate axes and labels
+        ax, x_label, y_label = generate_axes(
+            scene=self,
+            x_range=[start_year, end_year, 50],
+            y_range=[0, 18, 2],
+            x_numbers_to_include=list(range(start_year, end_year, 50)),
+            y_numbers_to_include=list(range(0, 18, 2)),
+            log_y=False,
+            animate_axes=True,
+            x_axis_label="Year",
+            y_axis_label="Day Wages (£)",
+            font_size=26,
+            x_length=12,
+            y_length=6,
         )
 
-        if position:
-            ax = ax.move_to(RIGHT * position)
-        if scale:
-            ax = ax.scale(scale)
-
-        ### Add axis labels
-        x_label = ax.get_x_axis_label(
-            Text(x_axis_label, font_size=font_size, color=BLACK)
-        )
-        y_label = ax.get_y_axis_label(
-            Text(y_axis_label, font_size=font_size, color=BLACK)
+        ### Generate line plots and draw
+        line_graph = ax.plot_line_graph(
+            x_values=df["Year"],
+            y_values=df["Labour Day Wages (2025-£)"],
+            line_color=XKCD.RED,
+            add_vertex_dots=False,
+            stroke_width=3,
         )
 
-        if animate_axes:
-            ### Animate the creation of Axes
-            self.play(Write(ax))
-            self.play(Write(x_label))
-            self.play(Write(y_label))
-            self.wait()  # wait for 1 second
-        else:
-            ### Just generate without animation
-            self.add(ax)
-            self.add(x_label)
-            self.add(y_label)
+        ### Draw plots
+        self.play(
+            Write(line_graph, run_time=6.5, rate_func=rate_functions.ease_in_quad)
+        )
+        self.wait()
 
-        return ax, x_label, y_label
+
+class DayWages1800to2000(Scene):
+
+    def construct(self):
+        ### Get data
+        df = get_multi_chart_data()
+
+        ### Limit to time range
+        start_year = 1800
+        end_year = 2000
+        df = df.loc[(df["Year"] >= start_year) & (df["Year"] <= end_year)]
+
+        ### Generate axes and labels
+        ax, x_label, y_label = generate_axes(
+            scene=self,
+            x_range=[start_year, end_year, 50],
+            y_range=[0, 70, 10],
+            x_numbers_to_include=list(range(start_year, end_year, 50)),
+            y_numbers_to_include=list(range(0, 70, 10)),
+            log_y=False,
+            animate_axes=True,
+            x_axis_label="Year",
+            y_axis_label="Day Wages (£)",
+            font_size=26,
+            x_length=12,
+            y_length=6,
+        )
+
+        ### Generate line plots and draw
+        line_graph = ax.plot_line_graph(
+            x_values=df["Year"],
+            y_values=df["Labour Day Wages (2025-£)"],
+            line_color=XKCD.RED,
+            add_vertex_dots=False,
+            stroke_width=3,
+        )
+
+        ### Draw plots
+        self.play(
+            Write(line_graph, run_time=6.5, rate_func=rate_functions.ease_in_quad)
+        )
+        self.wait()
 
 
 class GDPPerPersonVsValueInBread1800to2000(Scene):
@@ -991,7 +659,8 @@ class GDPPerPersonVsValueInBread1800to2000(Scene):
         y_range = [y_min - y_padding, y_max + y_padding]
 
         ### Generate axes and labels
-        ax, x_label, y_label = self.generate_axes(
+        ax, x_label, y_label = generate_axes(
+            scene=self,
             x_range=[0, 25000, 5000],
             y_range=[0, 6, 1],
             x_numbers_to_include=list(range(0, 25001, 5000)),
@@ -1024,59 +693,6 @@ class GDPPerPersonVsValueInBread1800to2000(Scene):
 
         # Pause at the end to show final result
         self.wait(3)
-
-    def generate_axes(
-        self,
-        x_range: list,
-        y_range: list,
-        x_numbers_to_include: list,
-        y_numbers_to_include: list,
-        log_y: bool,
-        animate_axes: bool,
-        x_axis_label: str,
-        y_axis_label: str,
-        font_size: int,
-        x_length: int,
-        y_length: int,
-        position: float = None,
-        scale: float = None,
-    ) -> tuple:
-        ax = make_axes(
-            x_range=x_range,
-            y_range=y_range,
-            x_numbers_to_include=x_numbers_to_include,
-            y_numbers_to_include=y_numbers_to_include,
-            log_y=log_y,
-            x_length=x_length,
-            y_length=y_length,
-        )
-
-        if position:
-            ax = ax.move_to(RIGHT * position)
-        if scale:
-            ax = ax.scale(scale)
-
-        ### Add axis labels
-        x_label = ax.get_x_axis_label(
-            Text(x_axis_label, font_size=font_size, color=BLACK)
-        )
-        y_label = ax.get_y_axis_label(
-            Text(y_axis_label, font_size=font_size, color=BLACK)
-        )
-
-        if animate_axes:
-            ### Animate the creation of Axes
-            self.play(Write(ax))
-            self.play(Write(x_label))
-            self.play(Write(y_label))
-            self.wait()  # wait for 1 second
-        else:
-            ### Just generate without animation
-            self.add(ax)
-            self.add(x_label)
-            self.add(y_label)
-
-        return ax, x_label, y_label
 
 
 if __name__ == "__main__":
