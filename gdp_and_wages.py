@@ -112,8 +112,9 @@ class GDPPerPersonVsWeeklyWages1800to2000(Scene):
         ### Sort by year to ensure chronological order
         df = df.sort_values("Year").reset_index(drop=True)
 
-        ### Filter to only every 5 years
-        df = df[df["Year"] % 5 == 0]
+        ### Keep all years for smooth animation (remove the 5-year filtering)
+        # The original data already has interpolation built in from get_gdp_and_wages_df()
+        # which creates values for every year and applies moving averages
 
         ### Determine axis ranges based on data
         x_min, x_max = (
@@ -147,7 +148,7 @@ class GDPPerPersonVsWeeklyWages1800to2000(Scene):
             y_length=6,
         )
 
-        ### Create dots for each year
+        """ ### Create dots for each year
         dots = []
         years = []
         for i in range(len(df)):
@@ -165,7 +166,111 @@ class GDPPerPersonVsWeeklyWages1800to2000(Scene):
         self.play(LaggedStart(*[Create(dot) for dot in dots], lag_ratio=0.2))
 
         # Pause at the end to show final result
-        self.wait(3)
+        self.wait(3) """
+
+        ### Create ValueTracker for year animation
+        year_tracker = ValueTracker(1800)
+
+        ### Create year display in bottom right corner using absolute positioning
+        year_text_display = always_redraw(
+            lambda: Text(
+                f"{int(year_tracker.get_value())}",
+                font_size=24,
+                color=BLACK,
+            ).move_to(
+                [5, -1.5, 0]
+            )  # Absolute position in bottom right
+        )
+
+        ### Create dynamic line that updates based on year_tracker
+        def get_filtered_data(current_year):
+            """Filter data up to current year and interpolate for smooth animation"""
+            # Get all data up to the current year
+            filtered_df = df[df["Year"] <= current_year].copy()
+
+            if len(filtered_df) < 1:  # Need at least 1 point
+                return [], []
+
+            # If current_year is not a whole number, interpolate the current point
+            if current_year != int(current_year) and current_year < end_year:
+                current_year_int = int(current_year)
+                next_year = current_year_int + 1
+
+                # Find the data for current and next year
+                current_data = df[df["Year"] == current_year_int]
+                next_data = df[df["Year"] == next_year]
+
+                if not current_data.empty and not next_data.empty:
+                    # Interpolate between current and next year
+                    fraction = current_year - current_year_int
+
+                    interp_gdp = (
+                        current_data.iloc[0]["GDP /Person rolling average"]
+                        * (1 - fraction)
+                        + next_data.iloc[0]["GDP /Person rolling average"] * fraction
+                    )
+                    interp_wage = (
+                        current_data.iloc[0][
+                            "Real Average Weekly Wages (Bank of England (2017))"
+                        ]
+                        * (1 - fraction)
+                        + next_data.iloc[0][
+                            "Real Average Weekly Wages (Bank of England (2017))"
+                        ]
+                        * fraction
+                    )
+
+                    # Add the interpolated point
+                    interp_row = pd.DataFrame(
+                        {
+                            "Year": [current_year],
+                            "GDP /Person rolling average": [interp_gdp],
+                            "Real Average Weekly Wages (Bank of England (2017))": [
+                                interp_wage
+                            ],
+                        }
+                    )
+                    filtered_df = pd.concat(
+                        [filtered_df, interp_row], ignore_index=True
+                    )
+
+            if len(filtered_df) < 2:  # Need at least 2 points for a line
+                return [], []
+
+            return (
+                filtered_df["GDP /Person rolling average"].tolist(),
+                filtered_df[
+                    "Real Average Weekly Wages (Bank of England (2017))"
+                ].tolist(),
+            )
+
+        ### Create the dynamic line graph
+        dynamic_line = always_redraw(
+            lambda: (
+                ax.plot_line_graph(
+                    *get_filtered_data(year_tracker.get_value()),
+                    line_color=XKCD.BLUE,
+                    add_vertex_dots=False,
+                    stroke_width=3,
+                )
+                if get_filtered_data(year_tracker.get_value())[0]
+                else VGroup()
+            )
+        )
+
+        ### Add the year display and dynamic line to the scene
+        self.add(year_text_display, dynamic_line)
+
+        ### Animate the year tracker from 1800 to 2000 with smooth interpolation
+        # Use a longer duration for smoother animation
+        self.play(
+            year_tracker.animate.set_value(2000),
+            run_time=10,  # Increased from 8 to allow more granular updates
+            rate_func=rate_functions.linear,
+        )
+
+        ### Wait at the end to show the complete result
+        self.wait(2)
 
     def generate_axes(
         self,
