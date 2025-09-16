@@ -148,26 +148,6 @@ class GDPPerPersonVsWeeklyWages1800to2000(Scene):
             y_length=6,
         )
 
-        """ ### Create dots for each year
-        dots = []
-        years = []
-        for i in range(len(df)):
-            year = df.iloc[i]["Year"]
-            x_val = df.iloc[i]["GDP /Person rolling average"]
-            y_val = df.iloc[i]["Real Average Weekly Wages (Bank of England (2017))"]
-
-            dot = Dot(
-                ax.c2p(x_val, y_val), color=XKCD.BLUE, radius=0.08, fill_opacity=0.8
-            )
-            dots.append(dot)
-            years.append(year)
-
-        ### Animate dots sequentially from 1800 to 2000
-        self.play(LaggedStart(*[Create(dot) for dot in dots], lag_ratio=0.2))
-
-        # Pause at the end to show final result
-        self.wait(3) """
-
         ### Create ValueTracker for year animation
         year_tracker = ValueTracker(1800)
 
